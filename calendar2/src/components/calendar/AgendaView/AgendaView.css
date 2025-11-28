@@ -1,0 +1,104 @@
+.agenda-view {
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e4e7eb;
+  padding-bottom: 1rem;
+}
+
+.agenda-view-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #5f6368;
+}
+
+.agenda-day {
+  margin-bottom: 1.25rem;
+}
+
+.agenda-day-header {
+  padding: 1rem 1.25rem;
+  background-color: #f8fafd;
+  border-bottom: 1px solid #e4e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.agenda-day-header.today {
+  background-color: #eef4ff;
+}
+
+.agenda-day-name {
+  font-size: 0.8rem;
+  color: #5f6368;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.agenda-day-date {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-top: 0.2rem;
+}
+
+.agenda-event {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f3f4;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.agenda-event:hover {
+  background-color: rgba(26, 115, 232, 0.08);
+}
+
+.agenda-event-time {
+  min-width: 120px;
+  font-size: 0.85rem;
+  color: #5f6368;
+  margin-right: 1rem;
+}
+
+.all-day-badge {
+  background-color: #1a73e8;
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.agenda-event-indicator {
+  width: 4px;
+  height: 100%;
+  min-height: 40px;
+  border-radius: 2px;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.agenda-event-content {
+  flex: 1;
+}
+
+.agenda-event-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+  color: #1f1f1f;
+}
+
+.agenda-event-description {
+  font-size: 0.85rem;
+  color: #5f6368;
+  margin-top: 0.15rem;
+}
+

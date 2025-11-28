@@ -1,0 +1,94 @@
+.sidebar {
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar .card {
+  border: none;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px #e4e7eb;
+  background: #fff;
+}
+
+.sidebar .card + .card {
+  margin-top: 1rem;
+}
+
+.sidebar button.btn {
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
+  color: #5f6368;
+  border-color: transparent;
+}
+
+.mini-calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 0.5rem;
+  color: #5f6368;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.mini-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.mini-calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #3c4043;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.mini-calendar-day.other-month {
+  color: #b0b7c3;
+}
+
+.mini-calendar-day:hover {
+  background-color: rgba(26, 115, 232, 0.12);
+}
+
+.mini-calendar-day.today {
+  border: 1px solid #1a73e8;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.mini-calendar-day.selected {
+  background-color: #1a73e8;
+  color: #fff;
+  font-weight: 600;
+}
+
+.calendar-color-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.sidebar form .form-control {
+  border-radius: 12px;
+  border: 1px solid #e4e7eb;
+}
+
+@media (max-width: 991px) {
+  .sidebar {
+    padding: 1rem;
+  }
+}
+

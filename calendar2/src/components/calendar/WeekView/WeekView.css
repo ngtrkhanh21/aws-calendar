@@ -1,0 +1,130 @@
+.week-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e4e7eb;
+  overflow: hidden;
+}
+
+.week-header {
+  border-bottom: 1px solid #e4e7eb;
+  padding: 0.75rem 0.25rem;
+  margin: 0;
+  text-transform: uppercase;
+  color: #5f6368;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.time-column {
+  border-right: 1px solid #e4e7eb;
+  padding-right: 0.75rem;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #5f6368;
+  background: #f8fafd;
+}
+
+.day-header {
+  padding: 0.25rem 0;
+  text-align: center;
+}
+
+.day-header .day-number {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.day-header.today .day-number {
+  background: #1a73e8;
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.week-body {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  background: #fff;
+}
+
+.week-body .time-column {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.week-days {
+  display: flex;
+  flex: 1;
+}
+
+.week-day {
+  flex: 1;
+  border-right: 1px solid #e4e7eb;
+  position: relative;
+  background: #fff;
+}
+
+.week-day:last-child {
+  border-right: none;
+}
+
+.time-slot {
+  border-bottom: 1px solid #f1f3f4;
+  height: 60px;
+  cursor: pointer;
+}
+
+.time-slot:hover {
+  background-color: rgba(26, 115, 232, 0.06);
+}
+
+.events-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.week-event {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  padding: 0.35rem 0.5rem;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  pointer-events: all;
+  overflow: hidden;
+  font-size: 0.78rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.week-event:hover {
+  opacity: 0.95;
+}
+
+.event-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-time {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+

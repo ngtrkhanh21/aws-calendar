@@ -1,0 +1,122 @@
+.day-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e4e7eb;
+  overflow: hidden;
+}
+
+.day-header {
+  border-bottom: 1px solid #e4e7eb;
+  padding: 1rem 1.25rem;
+  margin: 0;
+  background: #fff;
+}
+
+.day-header-content .day-name {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #5f6368;
+  letter-spacing: 0.08em;
+}
+
+.day-header-content .day-number {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.all-day-events {
+  border-bottom: 1px solid #f1f3f4;
+  padding: 0.75rem 1.25rem;
+  background-color: #f8fafd;
+}
+
+.all-day-event {
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.35rem;
+  border-left: 4px solid;
+  background-color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.day-body {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.time-column {
+  border-right: 1px solid #e4e7eb;
+  padding-right: 0.75rem;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #5f6368;
+  position: sticky;
+  left: 0;
+  background-color: #f8fafd;
+  z-index: 2;
+}
+
+.day-timeline {
+  flex: 1;
+  position: relative;
+  background: #fff;
+}
+
+.time-slot {
+  border-bottom: 1px solid #f1f3f4;
+  height: 60px;
+  cursor: pointer;
+}
+
+.time-slot:hover {
+  background-color: rgba(26, 115, 232, 0.08);
+}
+
+.events-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.day-event {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  padding: 0.5rem;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  pointer-events: all;
+  overflow: hidden;
+  font-size: 0.85rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.day-event:hover {
+  opacity: 0.95;
+}
+
+.event-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.15rem;
+}
+
+.event-time {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+

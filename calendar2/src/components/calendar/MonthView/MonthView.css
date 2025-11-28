@@ -1,0 +1,108 @@
+.month-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.month-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: #5f6368;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e4e7eb;
+  letter-spacing: 0.08em;
+}
+
+.month-header .col {
+  padding: 0.25rem 0;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  flex: 1;
+  background: #f8fafd;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e4e7eb;
+}
+
+.month-day {
+  min-height: 140px;
+  border-right: 1px solid #e4e7eb;
+  border-bottom: 1px solid #e4e7eb;
+  padding: 0.65rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.month-day:nth-child(7n) {
+  border-right: none;
+}
+
+.month-day:hover {
+  background-color: #f1f3f4;
+}
+
+.month-day.other-month {
+  background-color: #f7f9fb;
+  color: #9aa0a6;
+}
+
+.month-day.today {
+  background-color: #eef4ff;
+}
+
+.day-number {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #3c4043;
+}
+
+.month-day.today .day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #1a73e8;
+  color: #fff;
+}
+
+.day-events {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.event-item {
+  font-size: 0.78rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background-color: rgba(26, 115, 232, 0.1);
+  color: #1f1f1f;
+  border-left: 3px solid;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-item:hover {
+  background-color: rgba(26, 115, 232, 0.18);
+}
+
+.more-events {
+  font-size: 0.75rem;
+  color: #5f6368;
+  font-weight: 500;
+}
+
