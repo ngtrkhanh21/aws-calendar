@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import classNames from 'classnames';
 import { dayjs, getWeekDays, formatTime, isSameDay, isToday, getTimeSlotHeight } from '../../../utils/dateUtils.js';
@@ -9,6 +9,17 @@ const SLOT_HEIGHT = 60; // pixels per hour
 
 function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClick }) {
   const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
+  const [now, setNow] = useState(dayjs());
+
+  useEffect(() => {
+    // Cập nhật vị trí vạch đỏ mỗi phút
+    setNow(dayjs());
+    const intervalId = setInterval(() => {
+      setNow(dayjs());
+    }, 60_000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   function getEventsForDay(day) {
     if (!events) return [];
@@ -35,6 +46,12 @@ function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClic
   function getCalendarColor(calendarId) {
     const calendar = calendars?.find((cal) => cal.id === calendarId);
     return calendar?.color || '#3788d8';
+  }
+
+  function getCurrentTimeTop() {
+    const dayStart = now.startOf('day');
+    const minutesFromStart = now.diff(dayStart, 'minute');
+    return minutesFromStart * (SLOT_HEIGHT / 60);
   }
 
   function handleTimeSlotClick(day, hour) {
@@ -66,6 +83,7 @@ function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClic
         <div className="week-days">
           {weekDays.map((day) => {
             const dayEvents = getEventsForDay(day);
+            const isTodayDay = isToday(day);
             return (
               <div key={day.format('YYYY-MM-DD')} className="week-day">
                 {HOURS.map((hour) => (
@@ -77,6 +95,14 @@ function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClic
                   />
                 ))}
                 <div className="events-layer">
+                  {isTodayDay && (
+                    <div
+                      className="current-time-line"
+                      style={{ top: `${getCurrentTimeTop()}px` }}
+                    >
+                      <div className="current-time-dot" />
+                    </div>
+                  )}
                   {dayEvents.map((event) => {
                     if (event.allDay) return null;
                     const { top, height } = getEventPosition(event);

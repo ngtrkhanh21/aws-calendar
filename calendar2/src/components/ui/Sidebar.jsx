@@ -1,10 +1,15 @@
-import { useState } from 'react';
-import { Container, Card, Form } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Card, Form, Dropdown } from 'react-bootstrap';
 import { dayjs, getMonthDays, isSameDay, isToday } from '../../utils/dateUtils.js';
 import './Sidebar.css';
 
-function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange }) {
+function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange, onCreateEvent }) {
   const [selectedMonth, setSelectedMonth] = useState(dayjs(currentDate));
+
+  // Đồng bộ month/year trên mini calendar với currentDate bên ngoài
+  useEffect(() => {
+    setSelectedMonth(dayjs(currentDate));
+  }, [currentDate]);
 
   function handleDateClick(day) {
     onDateChange?.(day);
@@ -23,6 +28,30 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
 
   return (
     <div className="sidebar">
+      <Dropdown className="w-100 mb-3">
+        <Dropdown.Toggle
+          as="button"
+          className="create-button w-100"
+        >
+          <span className="create-button-icon">+</span>
+          <span className="create-button-label">Tạo</span>
+          <span className="create-button-caret">▾</span>
+        </Dropdown.Toggle>
+        <Dropdown.Menu className="create-dropdown-menu">
+          <Dropdown.Item
+            onClick={() => onCreateEvent?.()}
+          >
+            Sự kiện
+          </Dropdown.Item>
+          <Dropdown.Item disabled>
+            Việc cần làm
+          </Dropdown.Item>
+          <Dropdown.Item disabled>
+            Lên lịch hẹn
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+
       <Card className="mb-3">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">

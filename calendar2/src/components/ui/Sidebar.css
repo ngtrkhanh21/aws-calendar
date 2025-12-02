@@ -4,6 +4,59 @@
   overflow-y: auto;
 }
 
+.create-button {
+  border-radius: 999px;
+  font-weight: 500;
+  background-color: #fff;
+  border: 1px solid #1a73e8;
+  box-shadow: 0 0 0 1px #e0ecff;
+  color: #1a73e8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 16px;
+}
+
+.create-button:hover {
+  background-color: #f2f8ff;
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.create-button-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.create-button-label {
+  font-size: 14px;
+}
+
+.create-button-caret {
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.create-dropdown-menu {
+  border-radius: 12px;
+  padding: 4px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e3e7;
+  min-width: 180px;
+}
+
+.create-dropdown-menu .dropdown-item {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.create-dropdown-menu .dropdown-item.active,
+.create-dropdown-menu .dropdown-item:active {
+  background-color: #e8f0fe;
+  color: #174ea6;
+}
+
 .sidebar .card {
   border: none;
   border-radius: 18px;

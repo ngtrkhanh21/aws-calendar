@@ -386,6 +386,10 @@ function Calendar() {
               calendars={calendars}
               onCalendarToggle={handleCalendarToggle}
               onDatePickerChange={handleDatePickerChange}
+              onCreateEvent={() => {
+                setSelectedEvent(null);
+                setShowEventModal(true);
+              }}
             />
           </Col>
           <Col lg={9} xs={12} className="calendar-main-column">

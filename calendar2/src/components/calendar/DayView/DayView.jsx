@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import classNames from 'classnames';
 import { dayjs, formatTime, isToday, getTimeSlotHeight } from '../../../utils/dateUtils.js';
@@ -9,6 +9,17 @@ const SLOT_HEIGHT = 60; // pixels per hour
 
 function DayView({ currentDate, events, calendars, onEventClick, onTimeSlotClick }) {
   const day = useMemo(() => dayjs(currentDate), [currentDate]);
+  const [now, setNow] = useState(dayjs());
+
+  useEffect(() => {
+    // Cập nhật vạch đỏ mỗi phút
+    setNow(dayjs());
+    const intervalId = setInterval(() => {
+      setNow(dayjs());
+    }, 60_000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   function getEventsForDay() {
     if (!events) return [];
@@ -40,6 +51,12 @@ function DayView({ currentDate, events, calendars, onEventClick, onTimeSlotClick
   function handleTimeSlotClick(hour) {
     const dateTime = dayjs(day).hour(hour).minute(0);
     onTimeSlotClick?.(dateTime);
+  }
+
+  function getCurrentTimeTop() {
+    const dayStart = now.startOf('day');
+    const minutesFromStart = now.diff(dayStart, 'minute');
+    return minutesFromStart * (SLOT_HEIGHT / 60);
   }
 
   const dayEvents = getEventsForDay();
@@ -89,6 +106,14 @@ function DayView({ currentDate, events, calendars, onEventClick, onTimeSlotClick
             />
           ))}
           <div className="events-layer">
+            {isToday(day) && (
+              <div
+                className="current-time-line"
+                style={{ top: `${getCurrentTimeTop()}px` }}
+              >
+                <div className="current-time-dot" />
+              </div>
+            )}
             {timedEvents.map((event) => {
               const { top, height } = getEventPosition(event);
               return (
