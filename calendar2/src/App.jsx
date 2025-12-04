@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Calendar from './pages/Calendar';
-import Callback from './pages/CallBack';
+import Callback from './pages/Callback';
 import Login from './pages/Login';  
 import './App.css';
 
