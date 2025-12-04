@@ -5,7 +5,7 @@ import Calendar from './Calendar';
 // Import config
 import { CONFIG } from '../services/config';
 
-export default function Callback() {
+function Callback() {
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState(null);
@@ -269,3 +269,4 @@ export default function Callback() {
     </div>
   );
 }
+  export default Callback;
