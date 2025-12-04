@@ -95,7 +95,7 @@ export default function Callback() {
         tokenType: result.tokenType || result.token_type
       };
 
-      console.log('✅ Tokens extracted:', {
+      console.log(' Tokens extracted:', {
         hasAccessToken: !!tokens.accessToken,
         hasIdToken: !!tokens.idToken,
         hasRefreshToken: !!tokens.refreshToken
@@ -129,7 +129,7 @@ export default function Callback() {
         console.warn('Failed to decode ID token:', decodeError);
       }
 
-      console.log('✅ Login successful! Redirecting...');
+      console.log(' Login successful! Redirecting...');
       setStatus('Login successful! Redirecting...');
 
       // Redirect to home page
@@ -138,10 +138,10 @@ export default function Callback() {
       }, 1000);
 
     } catch (error) {
-      console.error('❌ ==== Token Exchange Error ====');
-      console.error('❌ Error:', error);
-      console.error('❌ Error message:', error.message);
-      console.error('❌ Error stack:', error.stack);
+      console.error('  Token Exchange Error ');
+      console.error(' Error:', error);
+      console.error(' Error message:', error.message);
+      console.error(' Error stack:', error.stack);
       
       setError(error.message);
       setStatus('Authentication failed');
