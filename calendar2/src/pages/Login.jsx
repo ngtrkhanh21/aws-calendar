@@ -24,7 +24,7 @@ function Login() {
     });
     
     const loginUrl = `${CONFIG.cognitoDomain}/oauth2/authorize?${params}`;
-    console.log('🚀 Redirecting to Google login:', loginUrl);
+    console.log(' Redirecting to Google login:', loginUrl);
     window.location.href = loginUrl;
   };
 

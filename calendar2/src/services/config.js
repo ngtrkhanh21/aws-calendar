@@ -6,7 +6,7 @@ export const CONFIG = {
   cognitoDomain: 'https://ap-southeast-1tryyhpjm0.auth.ap-southeast-1.amazoncognito.com',
   apiGatewayUrl: 'https://3igtxin245.execute-api.ap-southeast-1.amazonaws.com/prod',
   
-  redirectUri: 'https://auroratime.click/',
+  redirectUri: 'https://auroratime.click/calendar',
   logoutUri: 'http://localhost:5173'
 };
 
