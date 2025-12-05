@@ -147,10 +147,81 @@ function Calendar() {
       const startDate = dayjs(currentDate).startOf(view === VIEWS.MONTH ? 'month' : view === VIEWS.WEEK ? 'isoWeek' : 'day');
       const endDate = dayjs(currentDate).endOf(view === VIEWS.MONTH ? 'month' : view === VIEWS.WEEK ? 'isoWeek' : 'day');
 
+      function expandRecurring(events, rangeStart, rangeEnd) {
+        const expanded = [];
+        const endOfYear = dayjs(rangeEnd).endOf('year');
+        events.forEach((ev) => {
+          // Không có repeat -> giữ nguyên
+          if (ev.type !== 'task' || !ev.repeat || ev.repeat === 'none') {
+            expanded.push(ev);
+            return;
+          }
+
+          const baseStart = dayjs(ev.start);
+          const baseEnd = dayjs(ev.end);
+          const durationMinutes = baseEnd.diff(baseStart, 'minute');
+
+          // Lặp hằng ngày tới hết năm hiện tại
+          if (ev.repeat === 'daily') {
+            let cursor = baseStart.clone();
+            while (cursor.isBefore(endOfYear) || cursor.isSame(endOfYear, 'day')) {
+              const occurrenceStart = cursor.clone();
+              const occurrenceEnd = occurrenceStart.add(durationMinutes, 'minute');
+              if (
+                occurrenceEnd.isAfter(rangeStart) &&
+                occurrenceStart.isBefore(rangeEnd)
+              ) {
+                expanded.push({
+                  ...ev,
+                  start: occurrenceStart.toISOString(),
+                  end: occurrenceEnd.toISOString(),
+                });
+              }
+              cursor = cursor.add(1, 'day');
+            }
+            return;
+          }
+
+          // Lặp theo tuần / tùy chỉnh ngày (repeatDays)
+          if (ev.repeat === 'weekly' || ev.repeat === 'custom') {
+            const days = Array.isArray(ev.repeatDays) ? ev.repeatDays : [];
+            const targetDays = days.length > 0 ? days : [baseStart.day()];
+            let cursor = baseStart.startOf('week');
+            while (cursor.isBefore(endOfYear) || cursor.isSame(endOfYear, 'day')) {
+              targetDays.forEach((dow) => {
+                const dayDate = cursor.day(dow);
+                const occurrenceStart = dayDate
+                  .hour(baseStart.hour())
+                  .minute(baseStart.minute());
+                const occurrenceEnd = occurrenceStart.add(durationMinutes, 'minute');
+                if (
+                  occurrenceEnd.isAfter(rangeStart) &&
+                  occurrenceStart.isBefore(rangeEnd) &&
+                  occurrenceStart.isAfter(baseStart.subtract(1, 'day'))
+                ) {
+                  expanded.push({
+                    ...ev,
+                    start: occurrenceStart.toISOString(),
+                    end: occurrenceEnd.toISOString(),
+                  });
+                }
+              });
+              cursor = cursor.add(1, 'week');
+            }
+            return;
+          }
+
+          // fallback
+          expanded.push(ev);
+        });
+        return expanded;
+      }
+
       // Nếu đã biết API không available, dùng mock data luôn
       if (useMockData) {
         const allMockEvents = loadMockEventsFromStorage();
-        const filteredEvents = allMockEvents.filter((event) => {
+        const expandedEvents = expandRecurring(allMockEvents, startDate, endDate);
+        const filteredEvents = expandedEvents.filter((event) => {
           const eventStart = dayjs(event.start);
           const eventEnd = dayjs(event.end);
           return (
@@ -176,7 +247,8 @@ function Calendar() {
         console.debug('API unavailable, using mock data');
         setUseMockData(true);
         const allMockEvents = loadMockEventsFromStorage();
-        const filteredEvents = allMockEvents.filter((event) => {
+        const expandedEvents = expandRecurring(allMockEvents, startDate, endDate);
+        const filteredEvents = expandedEvents.filter((event) => {
           const eventStart = dayjs(event.start);
           const eventEnd = dayjs(event.end);
           return (
