@@ -60,6 +60,7 @@
 .task-field-actions {
   display: flex;
   gap: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .task-date-input,
@@ -67,6 +68,41 @@
   width: auto;
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
+}
+
+.task-repeat-select {
+  width: 170px;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.repeat-days {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.repeat-day-chip {
+  border: 1px solid #dadce0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  color: #5f6368;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.repeat-day-chip:hover {
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.repeat-day-chip.active {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
+  font-weight: 600;
 }
 
 .task-add-deadline {

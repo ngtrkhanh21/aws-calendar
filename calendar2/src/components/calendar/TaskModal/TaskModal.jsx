@@ -11,7 +11,8 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
   const [deadline, setDeadline] = useState('');
   const [taskList, setTaskList] = useState('my-tasks');
   const [showDeadlinePicker, setShowDeadlinePicker] = useState(false);
-  const [repeat, setRepeat] = useState('none');
+  const [repeat, setRepeat] = useState('none'); // none | daily | weekly | custom
+  const [repeatDays, setRepeatDays] = useState([]); // array of weekday numbers (0-6)
 
   useEffect(() => {
     if (task) {
@@ -24,6 +25,7 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
       setDeadline(task.deadline ? dayjs(task.deadline).format('YYYY-MM-DD') : '');
       setTaskList(task.taskList || 'my-tasks');
       setRepeat(task.repeat || 'none');
+      setRepeatDays(task.repeatDays || []);
     } else {
       // Reset for new task
       const selectedDate = currentDate ? dayjs(currentDate) : dayjs();
@@ -34,6 +36,7 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
       setDeadline('');
       setTaskList('my-tasks');
       setRepeat('none');
+      setRepeatDays([]);
     }
     setShowDeadlinePicker(false);
   }, [task, currentDate]);
@@ -70,6 +73,7 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
         deadline: deadline ? dayjs(deadline).startOf('day').utc().toISOString() : null,
         taskList,
         repeat,
+        repeatDays,
         completed: task?.completed || false,
       };
 
@@ -92,6 +96,30 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
   const formattedDate = date ? dayjs(date).format('D [thg] M, YYYY') : '';
   const formattedTime = time ? dayjs(`2000-01-01 ${time}`).format('h:mmA') : '';
   const formattedDeadline = deadline ? dayjs(deadline).format('D [thg] M, YYYY') : '';
+  const repeatLabel =
+    repeat === 'daily'
+      ? 'Lặp lại hằng ngày'
+      : repeat === 'weekly'
+      ? 'Lặp lại hằng tuần'
+      : repeat === 'custom'
+      ? 'Lặp lại tùy chỉnh'
+      : 'Không lặp lại';
+
+  const weekdayOptions = [
+    { label: 'T2', value: 1 },
+    { label: 'T3', value: 2 },
+    { label: 'T4', value: 3 },
+    { label: 'T5', value: 4 },
+    { label: 'T6', value: 5 },
+    { label: 'T7', value: 6 },
+    { label: 'CN', value: 0 },
+  ];
+
+  function toggleRepeatDay(dayValue) {
+    setRepeatDays((prev) =>
+      prev.includes(dayValue) ? prev.filter((d) => d !== dayValue) : [...prev, dayValue]
+    );
+  }
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered className="task-modal">
@@ -121,7 +149,7 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
                 {time && <span className="ms-2">{formattedTime}</span>}
               </div>
               <div className="task-repeat">
-                {repeat === 'none' ? 'Không lặp lại' : 'Lặp lại'}
+                {repeatLabel}
               </div>
             </div>
             <div className="task-field-actions">
@@ -137,7 +165,31 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
                 onChange={(e) => setTime(e.target.value)}
                 className="task-time-input ms-2"
               />
+              <Form.Select
+                value={repeat}
+                onChange={(e) => setRepeat(e.target.value)}
+                className="task-repeat-select ms-2"
+              >
+                <option value="none">Không lặp lại</option>
+                <option value="daily">Hằng ngày</option>
+                <option value="weekly">Hằng tuần</option>
+                <option value="custom">Tùy chỉnh ngày</option>
+              </Form.Select>
             </div>
+            {(repeat === 'weekly' || repeat === 'custom') && (
+              <div className="repeat-days mt-2">
+                {weekdayOptions.map((day) => (
+                  <button
+                    type="button"
+                    key={day.value}
+                    className={`repeat-day-chip ${repeatDays.includes(day.value) ? 'active' : ''}`}
+                    onClick={() => toggleRepeatDay(day.value)}
+                  >
+                    {day.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="task-field mb-3">

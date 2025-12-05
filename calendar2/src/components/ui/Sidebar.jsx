@@ -28,10 +28,10 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
 
   return (
     <div className="sidebar">
-      <Dropdown className="w-100 mb-3">
+      <Dropdown className="mb-3">
         <Dropdown.Toggle
           as="button"
-          className="create-button w-100"
+          className="create-button"
         >
           <span className="create-button-icon">+</span>
           <span className="create-button-label">Tạo</span>
