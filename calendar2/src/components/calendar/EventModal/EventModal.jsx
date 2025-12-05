@@ -125,28 +125,17 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
 
           <Form.Group className="mb-3">
             <Form.Label>Calendar *</Form.Label>
-            <div className="d-flex gap-3">
+            <Form.Select
+              value={calendarId}
+              onChange={(e) => setCalendarId(e.target.value)}
+              required
+            >
               {calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work').map((cal) => (
-                <Form.Check
-                  key={cal.id}
-                  type="radio"
-                  id={`calendar-${cal.id}`}
-                  name="calendar"
-                  label={
-                    <span>
-                      <span
-                        className="calendar-color-indicator me-2"
-                        style={{ backgroundColor: cal.color || '#3788d8' }}
-                      />
-                      {cal.name}
-                    </span>
-                  }
-                  checked={calendarId === cal.id}
-                  onChange={() => setCalendarId(cal.id)}
-                  className="calendar-radio-option"
-                />
+                <option key={cal.id} value={cal.id}>
+                  {cal.name}
+                </option>
               ))}
-            </div>
+            </Form.Select>
           </Form.Group>
 
           <Form.Group className="mb-3">

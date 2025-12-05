@@ -6,29 +6,20 @@
   vertical-align: middle;
 }
 
-/* Style cho radio buttons calendar */
-.calendar-radio-option {
-  flex: 1;
+/* Style cho dropdown calendar */
+.form-select {
   border: 1px solid #dadce0;
   border-radius: 4px;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   transition: all 0.2s ease;
-  cursor: pointer;
-  margin: 0;
 }
 
-.calendar-radio-option:hover {
-  background-color: #f8f9fa;
+.form-select:hover {
   border-color: #4285f4;
 }
 
-.calendar-radio-option input[type="radio"]:checked ~ label,
-.calendar-radio-option input[type="radio"]:checked + label {
-  font-weight: 500;
-}
-
-.calendar-radio-option input[type="radio"]:checked {
-  background-color: #4285f4;
+.form-select:focus {
   border-color: #4285f4;
+  box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
 }
 
