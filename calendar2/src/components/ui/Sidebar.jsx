@@ -33,7 +33,9 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
           as="button"
           className="create-button"
         >
-          <span className="create-button-icon">+</span>
+          <svg className="create-button-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/>
+          </svg>
           <span className="create-button-label">Tạo</span>
           <span className="create-button-caret">▾</span>
         </Dropdown.Toggle>

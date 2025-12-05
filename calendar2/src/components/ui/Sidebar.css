@@ -27,17 +27,25 @@
 }
 
 .create-button-icon {
-  font-size: 16px;
-  line-height: 1;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a73e8;
+  flex-shrink: 0;
 }
 
 .create-button-label {
-  font-size: 13px;
+  font-size: 14px;
+  color: #202124;
+  font-weight: 500;
 }
 
 .create-button-caret {
   font-size: 9px;
   margin-top: 1px;
+  color: #1a73e8;
 }
 
 .create-dropdown-menu {
