@@ -34,6 +34,7 @@ function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedTaskOccurrenceStart, setSelectedTaskOccurrenceStart] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [useMockData, setUseMockData] = useState(false);
@@ -160,12 +161,26 @@ function Calendar() {
           const baseStart = dayjs(ev.start);
           const baseEnd = dayjs(ev.end);
           const durationMinutes = baseEnd.diff(baseStart, 'minute');
+          const excludeDates = Array.isArray(ev.excludeDates) 
+            ? ev.excludeDates.map(d => dayjs(d).startOf('day').toISOString())
+            : [];
+
+          // Helper function để kiểm tra xem occurrence có bị exclude không
+          function isExcluded(occurrenceDate) {
+            const occDateStr = occurrenceDate.startOf('day').toISOString();
+            return excludeDates.includes(occDateStr);
+          }
 
           // Lặp hằng ngày tới hết năm hiện tại
           if (ev.repeat === 'daily') {
             let cursor = baseStart.clone();
             while (cursor.isBefore(endOfYear) || cursor.isSame(endOfYear, 'day')) {
               const occurrenceStart = cursor.clone();
+              // Bỏ qua nếu ngày này bị exclude
+              if (isExcluded(occurrenceStart)) {
+                cursor = cursor.add(1, 'day');
+                continue;
+              }
               const occurrenceEnd = occurrenceStart.add(durationMinutes, 'minute');
               if (
                 occurrenceEnd.isAfter(rangeStart) &&
@@ -193,6 +208,10 @@ function Calendar() {
                 const occurrenceStart = dayDate
                   .hour(baseStart.hour())
                   .minute(baseStart.minute());
+                // Bỏ qua nếu ngày này bị exclude
+                if (isExcluded(occurrenceStart)) {
+                  return;
+                }
                 const occurrenceEnd = occurrenceStart.add(durationMinutes, 'minute');
                 if (
                   occurrenceEnd.isAfter(rangeStart) &&
@@ -307,6 +326,8 @@ function Calendar() {
     // Nếu là task thì mở TaskModal, nếu không thì mở EventModal
     if (event.type === 'task') {
       setSelectedTask(event);
+      // Lưu lại ngày occurrence hiện tại để dùng khi xóa "lần này"
+      setSelectedTaskOccurrenceStart(event.start);
       setShowTaskModal(true);
     } else {
       setSelectedEvent(event);
@@ -645,8 +666,10 @@ function Calendar() {
         onHide={() => {
           setShowTaskModal(false);
           setSelectedTask(null);
+          setSelectedTaskOccurrenceStart(null);
         }}
         task={selectedTask}
+        occurrenceStart={selectedTaskOccurrenceStart}
         currentDate={currentDate}
         onSave={handleTaskSave}
         onDelete={handleTaskDelete}

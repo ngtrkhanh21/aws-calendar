@@ -3,7 +3,7 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import { dayjs } from '../../../utils/dateUtils.js';
 import './TaskModal.css';
 
-function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
+function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, onDelete }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
@@ -283,13 +283,22 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
                 <div className="me-auto d-flex gap-2 flex-wrap">
                   <Button
                     variant="outline-danger"
-                    onClick={() => onDelete?.(task.id, 'single', task.start)}
+                    onClick={() => {
+                      // Dùng occurrenceStart nếu có (khi click vào occurrence cụ thể), 
+                      // nếu không thì dùng task.start hiện tại
+                      const startToDelete = occurrenceStart || task.start;
+                      onDelete?.(task.id, 'single', startToDelete);
+                      onHide();
+                    }}
                   >
                     Xóa lần này
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => onDelete?.(task.id, 'all')}
+                    onClick={() => {
+                      onDelete?.(task.id, 'all');
+                      onHide();
+                    }}
                   >
                     Xóa tất cả
                   </Button>
