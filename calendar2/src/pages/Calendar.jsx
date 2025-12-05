@@ -444,15 +444,30 @@ function Calendar() {
     }
   }
 
-  async function handleTaskDelete(taskId) {
+  async function handleTaskDelete(taskId, mode = 'single', occurrenceStart) {
     try {
-      // Xóa task từ events list
       const allEvents = loadMockEventsFromStorage();
-      const filteredEvents = allEvents.filter((e) => e.id !== taskId);
-      saveMockEventsToStorage(filteredEvents);
-      console.log('✅ Task deleted from events:', taskId);
-      
-      // Reload events
+
+      if (mode === 'all') {
+        // Xóa toàn bộ chuỗi
+        const filteredEvents = allEvents.filter((e) => e.id !== taskId);
+        saveMockEventsToStorage(filteredEvents);
+        console.log('✅ Task deleted (all occurrences):', taskId);
+      } else {
+        // Xóa một lần lặp: thêm excludeDates
+        const updated = allEvents.map((e) => {
+          if (e.id !== taskId) return e;
+          const exclude = Array.isArray(e.excludeDates) ? e.excludeDates : [];
+          const occ = occurrenceStart
+            ? dayjs(occurrenceStart).startOf('day').toISOString()
+            : dayjs(e.start).startOf('day').toISOString();
+          if (!exclude.includes(occ)) exclude.push(occ);
+          return { ...e, excludeDates: exclude, updatedAt: new Date().toISOString() };
+        });
+        saveMockEventsToStorage(updated);
+        console.log('✅ Task deleted (single occurrence):', taskId, occurrenceStart);
+      }
+
       await loadEvents();
     } catch (error) {
       console.error('Failed to delete task:', error);

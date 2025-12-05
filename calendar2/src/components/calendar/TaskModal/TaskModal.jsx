@@ -277,11 +277,30 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
         </Modal.Body>
 
         <Modal.Footer className="task-modal-footer">
-          {task && (
-            <Button variant="danger" onClick={handleDelete} className="me-auto">
-              Xóa
-            </Button>
-          )}
+          {task ? (
+            <>
+              {task.repeat && task.repeat !== 'none' ? (
+                <div className="me-auto d-flex gap-2 flex-wrap">
+                  <Button
+                    variant="outline-danger"
+                    onClick={() => onDelete?.(task.id, 'single', task.start)}
+                  >
+                    Xóa lần này
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => onDelete?.(task.id, 'all')}
+                  >
+                    Xóa tất cả
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="danger" onClick={handleDelete} className="me-auto">
+                  Xóa
+                </Button>
+              )}
+            </>
+          ) : null}
           <Button variant="secondary" onClick={onHide}>
             Hủy
           </Button>
