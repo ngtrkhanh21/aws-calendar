@@ -68,9 +68,10 @@ export function useEventResize(onEventResize) {
         }
       }
 
+      // Chuẩn hóa thời gian sang ISO 8601 format (2025-12-12T10:30:00Z)
       onEventResize?.(resizing.id, {
-        start: newStart.toISOString(),
-        end: newEnd.toISOString(),
+        start: newStart.utc().toISOString(),
+        end: newEnd.utc().toISOString(),
       });
 
       setResizing(null);

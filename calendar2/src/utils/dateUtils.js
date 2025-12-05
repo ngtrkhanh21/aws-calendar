@@ -56,3 +56,19 @@ export function getTimeSlotHeight(hourHeight = 60) {
   return hourHeight / 4; // 15-minute slots
 }
 
+/**
+ * Convert date to ISO 8601 format (2025-12-12T10:30:00Z)
+ * Đảm bảo format khớp với backend
+ */
+export function toISO8601(date) {
+  return dayjs(date).utc().toISOString();
+}
+
+/**
+ * Parse ISO 8601 string from backend
+ * Backend trả về format: 2025-12-12T10:30:00Z
+ */
+export function parseISO8601(isoString) {
+  return dayjs(isoString);
+}
+

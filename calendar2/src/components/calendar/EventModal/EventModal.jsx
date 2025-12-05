@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 import { dayjs } from '../../../utils/dateUtils.js';
+import './EventModal.css';
 
 function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDelete }) {
   const [title, setTitle] = useState('');
@@ -28,7 +29,11 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
     } else {
       // Reset for new event - dùng currentDate nếu có, không thì dùng ngày hiện tại
       const selectedDate = currentDate ? dayjs(currentDate) : dayjs();
-      const defaultCalendarId = calendars?.[0]?.id || 'cal-1'; // Fallback to mock calendar ID
+      // Chỉ lấy My Calendar hoặc Work, ưu tiên My Calendar
+      const availableCalendars = calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work') || [];
+      const defaultCalendarId = availableCalendars.find(cal => cal.name === 'My Calendar')?.id 
+        || availableCalendars[0]?.id 
+        || 'cal-1'; // Fallback to mock calendar ID
       
       console.log('Initializing new event', { currentDate, selectedDate: selectedDate.format('YYYY-MM-DD'), calendars, defaultCalendarId });
       
@@ -62,13 +67,14 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
       return;
     }
 
+    // Chuẩn hóa thời gian sang ISO 8601 format (2025-12-12T10:30:00Z)
     const start = allDay
-      ? dayjs(startDate).startOf('day').toISOString()
-      : dayjs(`${startDate} ${startTime}`).toISOString();
+      ? dayjs(startDate).startOf('day').utc().toISOString()
+      : dayjs(`${startDate} ${startTime}`).utc().toISOString();
     
     const end = allDay
-      ? dayjs(endDate).endOf('day').toISOString()
-      : dayjs(`${endDate} ${endTime}`).toISOString();
+      ? dayjs(endDate).endOf('day').utc().toISOString()
+      : dayjs(`${endDate} ${endTime}`).utc().toISOString();
 
     const eventData = {
       title: title.trim(),
@@ -115,6 +121,32 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Event description"
             />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Calendar *</Form.Label>
+            <div className="d-flex gap-3">
+              {calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work').map((cal) => (
+                <Form.Check
+                  key={cal.id}
+                  type="radio"
+                  id={`calendar-${cal.id}`}
+                  name="calendar"
+                  label={
+                    <span>
+                      <span
+                        className="calendar-color-indicator me-2"
+                        style={{ backgroundColor: cal.color || '#3788d8' }}
+                      />
+                      {cal.name}
+                    </span>
+                  }
+                  checked={calendarId === cal.id}
+                  onChange={() => setCalendarId(cal.id)}
+                  className="calendar-radio-option"
+                />
+              ))}
+            </div>
           </Form.Group>
 
           <Form.Group className="mb-3">

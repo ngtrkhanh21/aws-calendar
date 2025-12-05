@@ -117,7 +117,7 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
       <Card>
         <Card.Body>
           <h6 className="mb-3">Calendars</h6>
-          {calendars?.map((calendar) => (
+          {calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work').map((calendar) => (
             <Form.Check
               key={calendar.id}
               type="checkbox"

@@ -31,9 +31,10 @@ export function useDragAndDrop(onEventMove) {
       const duration = dayjs(eventData.end).diff(dayjs(eventData.start), 'minute');
       const newEnd = newStart.add(duration, 'minute');
 
+      // Chuẩn hóa thời gian sang ISO 8601 format (2025-12-12T10:30:00Z)
       onEventMove?.(eventData.id, {
-        start: newStart.toISOString(),
-        end: newEnd.toISOString(),
+        start: newStart.utc().toISOString(),
+        end: newEnd.utc().toISOString(),
       });
 
       setDragging(null);

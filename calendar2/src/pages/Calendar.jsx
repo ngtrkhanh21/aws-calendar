@@ -4,6 +4,7 @@ import { dayjs } from '../utils/dateUtils.js';
 import { calendarService } from '../services/calendarService.js';
 import { eventService } from '../services/eventService.js';
 import {
+  mockCalendars,
   loadMockCalendarsFromStorage,
   saveMockCalendarsToStorage,
   loadMockEventsFromStorage,
@@ -48,8 +49,28 @@ function Calendar() {
       
       // Nếu đã biết API không available, dùng mock data luôn
       if (useMockData) {
-        const calendarsData = loadMockCalendarsFromStorage();
-        const eventsData = loadMockEventsFromStorage();
+        let calendarsData = loadMockCalendarsFromStorage();
+        let eventsData = loadMockEventsFromStorage();
+
+        // Migrate events từ Personal calendar (cal-3) sang My Calendar (cal-1)
+        const hasPersonalEvents = eventsData.some(e => e.calendarId === 'cal-3');
+        if (hasPersonalEvents) {
+          eventsData = eventsData.map((event) => {
+            if (event.calendarId === 'cal-3') {
+              return { ...event, calendarId: 'cal-1' };
+            }
+            return event;
+          });
+          saveMockEventsToStorage(eventsData);
+        }
+
+        // Đảm bảo chỉ có My Calendar và Work
+        calendarsData = calendarsData.filter(cal => cal.id !== 'cal-3' && (cal.name === 'My Calendar' || cal.name === 'Work'));
+        if (calendarsData.length === 0 || calendarsData.some(cal => cal.id === 'cal-3')) {
+          // Reset về mock data mặc định
+          calendarsData = mockCalendars;
+          saveMockCalendarsToStorage(calendarsData);
+        }
 
         const calendarsWithVisibility = calendarsData.map((cal) => ({
           ...cal,
@@ -80,8 +101,28 @@ function Calendar() {
         // Nếu API fail, dùng mock data từ localStorage
         console.debug('API unavailable, switching to mock data');
         setUseMockData(true);
-        const calendarsData = loadMockCalendarsFromStorage();
-        const eventsData = loadMockEventsFromStorage();
+        let calendarsData = loadMockCalendarsFromStorage();
+        let eventsData = loadMockEventsFromStorage();
+
+        // Migrate events từ Personal calendar (cal-3) sang My Calendar (cal-1)
+        const hasPersonalEvents = eventsData.some(e => e.calendarId === 'cal-3');
+        if (hasPersonalEvents) {
+          eventsData = eventsData.map((event) => {
+            if (event.calendarId === 'cal-3') {
+              return { ...event, calendarId: 'cal-1' };
+            }
+            return event;
+          });
+          saveMockEventsToStorage(eventsData);
+        }
+
+        // Đảm bảo chỉ có My Calendar và Work
+        calendarsData = calendarsData.filter(cal => cal.id !== 'cal-3' && (cal.name === 'My Calendar' || cal.name === 'Work'));
+        if (calendarsData.length === 0 || calendarsData.some(cal => cal.id === 'cal-3')) {
+          // Reset về mock data mặc định
+          calendarsData = mockCalendars;
+          saveMockCalendarsToStorage(calendarsData);
+        }
 
         const calendarsWithVisibility = calendarsData.map((cal) => ({
           ...cal,
@@ -118,9 +159,10 @@ function Calendar() {
         return;
       }
 
+      // Chuẩn hóa thời gian sang ISO 8601 format (2025-12-12T10:30:00Z)
       const params = {
-        start: startDate.toISOString(),
-        end: endDate.toISOString(),
+        start: startDate.utc().toISOString(),
+        end: endDate.utc().toISOString(),
       };
 
       try {
