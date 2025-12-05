@@ -331,40 +331,33 @@ function Calendar() {
   }
 
   async function handleTaskSave(taskId, taskData) {
+    console.log('handleTaskSave called', { taskId, taskData, useMockData });
     try {
-      if (useMockData) {
-        // Mock mode: lưu vào localStorage
-        const allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
-        let updatedTasks;
-        
-        if (taskId) {
-          updatedTasks = allTasks.map((t) =>
-            t.id === taskId ? { ...t, ...taskData, updatedAt: new Date().toISOString() } : t
-          );
-        } else {
-          const newTask = {
-            id: `task-${Date.now()}`,
-            ...taskData,
-            userId: 'user-1',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-          updatedTasks = [...allTasks, newTask];
-        }
-        
-        localStorage.setItem('mockTasks', JSON.stringify(updatedTasks));
-        console.log('✅ Task saved in mock data:', taskId || 'new');
+      // Luôn dùng mock data cho bây giờ
+      const allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
+      let updatedTasks;
+      
+      if (taskId) {
+        updatedTasks = allTasks.map((t) =>
+          t.id === taskId ? { ...t, ...taskData, updatedAt: new Date().toISOString() } : t
+        );
       } else {
-        // TODO: Call API when backend is ready
-        // if (taskId) {
-        //   await taskService.updateTask(taskId, taskData);
-        // } else {
-        //   await taskService.createTask(taskData);
-        // }
+        const newTask = {
+          id: `task-${Date.now()}`,
+          ...taskData,
+          userId: 'user-1',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        updatedTasks = [...allTasks, newTask];
       }
+      
+      localStorage.setItem('mockTasks', JSON.stringify(updatedTasks));
+      console.log('✅ Task saved in mock data:', taskId || 'new');
+      alert('Đã lưu việc cần làm thành công!');
     } catch (error) {
       console.error('Failed to save task:', error);
-      alert('Failed to save task. Please try again.');
+      alert('Có lỗi xảy ra khi lưu việc cần làm. Vui lòng thử lại.');
     }
   }
 

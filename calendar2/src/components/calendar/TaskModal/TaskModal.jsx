@@ -45,21 +45,30 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
       return;
     }
 
-    const taskDate = dayjs(`${date} ${time}`).utc().toISOString();
-    const deadlineDate = deadline ? dayjs(deadline).utc().toISOString() : null;
+    try {
+      // Đảm bảo date và time hợp lệ
+      const selectedDate = date || dayjs().format('YYYY-MM-DD');
+      const selectedTime = time || dayjs().format('HH:mm');
+      const taskDate = dayjs(`${selectedDate} ${selectedTime}`).utc().toISOString();
+      const deadlineDate = deadline ? dayjs(deadline).startOf('day').utc().toISOString() : null;
 
-    const taskData = {
-      title: title.trim(),
-      description: description.trim(),
-      date: taskDate,
-      deadline: deadlineDate,
-      taskList,
-      repeat,
-      completed: task?.completed || false,
-    };
+      const taskData = {
+        title: title.trim(),
+        description: description.trim(),
+        date: taskDate,
+        deadline: deadlineDate,
+        taskList,
+        repeat,
+        completed: task?.completed || false,
+      };
 
-    onSave?.(task?.id, taskData);
-    onHide();
+      console.log('Saving task:', taskData);
+      onSave?.(task?.id, taskData);
+      onHide();
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+      alert('Có lỗi xảy ra khi lưu việc cần làm. Vui lòng thử lại.');
+    }
   }
 
   function handleDelete() {
@@ -84,34 +93,6 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
             onChange={(e) => setTitle(e.target.value)}
             className="task-title-input"
           />
-          <div className="task-tabs mt-3">
-            <button
-              type="button"
-              className="task-tab"
-              onClick={() => {
-                // Switch to event modal - sẽ implement sau
-                onHide();
-              }}
-            >
-              Sự kiện
-            </button>
-            <button
-              type="button"
-              className="task-tab active"
-            >
-              Việc cần làm
-            </button>
-            <button
-              type="button"
-              className="task-tab"
-              onClick={() => {
-                // Switch to appointment modal - sẽ implement sau
-                onHide();
-              }}
-            >
-              Lên lịch hẹn
-            </button>
-          </div>
         </div>
       </Modal.Header>
 
