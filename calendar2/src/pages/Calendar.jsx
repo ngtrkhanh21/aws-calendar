@@ -13,7 +13,6 @@ import {
 import MonthView from '../components/calendar/MonthView';
 import WeekView from '../components/calendar/WeekView';
 import DayView from '../components/calendar/DayView';
-import AgendaView from '../components/calendar/AgendaView';
 import EventModal from '../components/calendar/EventModal';
 import TaskModal from '../components/calendar/TaskModal/TaskModal';
 import Sidebar from '../components/ui/Sidebar.jsx';
@@ -23,7 +22,6 @@ const VIEWS = {
   MONTH: 'month',
   WEEK: 'week',
   DAY: 'day',
-  AGENDA: 'agenda',
 };
 
 function Calendar() {
@@ -524,7 +522,7 @@ function Calendar() {
     } else if (view === VIEWS.DAY) {
       return currentDate.format('MMMM D, YYYY');
     }
-    return 'Agenda';
+    return '';
   };
 
   if (loading) {
@@ -561,12 +559,6 @@ function Calendar() {
                   onClick={() => setView(VIEWS.DAY)}
                 >
                   Day
-                </Button>
-                <Button
-                  variant={view === VIEWS.AGENDA ? 'primary' : 'outline-primary'}
-                  onClick={() => setView(VIEWS.AGENDA)}
-                >
-                  Agenda
                 </Button>
               </ButtonGroup>
 
@@ -634,13 +626,6 @@ function Calendar() {
                   calendars={visibleCalendars}
                   onEventClick={handleEventClick}
                   onTimeSlotClick={handleTimeSlotClick}
-                />
-              )}
-              {view === VIEWS.AGENDA && (
-                <AgendaView
-                  events={filteredEvents}
-                  calendars={visibleCalendars}
-                  onEventClick={handleEventClick}
                 />
               )}
             </div>
