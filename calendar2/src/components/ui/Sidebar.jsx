@@ -3,7 +3,7 @@ import { Card, Form, Dropdown } from 'react-bootstrap';
 import { dayjs, getMonthDays, isSameDay, isToday } from '../../utils/dateUtils.js';
 import './Sidebar.css';
 
-function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange, onCreateEvent }) {
+function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange, onCreateEvent, onCreateTask }) {
   const [selectedMonth, setSelectedMonth] = useState(dayjs(currentDate));
 
   // Đồng bộ month/year trên mini calendar với currentDate bên ngoài
@@ -43,7 +43,9 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
           >
             Sự kiện
           </Dropdown.Item>
-          <Dropdown.Item disabled>
+          <Dropdown.Item
+            onClick={() => onCreateTask?.()}
+          >
             Việc cần làm
           </Dropdown.Item>
           <Dropdown.Item disabled>

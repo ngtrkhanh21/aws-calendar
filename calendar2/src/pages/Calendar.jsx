@@ -15,6 +15,7 @@ import WeekView from '../components/calendar/WeekView';
 import DayView from '../components/calendar/DayView';
 import AgendaView from '../components/calendar/AgendaView';
 import EventModal from '../components/calendar/EventModal';
+import TaskModal from '../components/calendar/TaskModal/TaskModal';
 import Sidebar from '../components/ui/Sidebar.jsx';
 import './Calendar.css';
 
@@ -32,6 +33,8 @@ function Calendar() {
   const [calendars, setCalendars] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [useMockData, setUseMockData] = useState(false);
 
@@ -327,6 +330,61 @@ function Calendar() {
     }
   }
 
+  async function handleTaskSave(taskId, taskData) {
+    try {
+      if (useMockData) {
+        // Mock mode: lưu vào localStorage
+        const allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
+        let updatedTasks;
+        
+        if (taskId) {
+          updatedTasks = allTasks.map((t) =>
+            t.id === taskId ? { ...t, ...taskData, updatedAt: new Date().toISOString() } : t
+          );
+        } else {
+          const newTask = {
+            id: `task-${Date.now()}`,
+            ...taskData,
+            userId: 'user-1',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          updatedTasks = [...allTasks, newTask];
+        }
+        
+        localStorage.setItem('mockTasks', JSON.stringify(updatedTasks));
+        console.log('✅ Task saved in mock data:', taskId || 'new');
+      } else {
+        // TODO: Call API when backend is ready
+        // if (taskId) {
+        //   await taskService.updateTask(taskId, taskData);
+        // } else {
+        //   await taskService.createTask(taskData);
+        // }
+      }
+    } catch (error) {
+      console.error('Failed to save task:', error);
+      alert('Failed to save task. Please try again.');
+    }
+  }
+
+  async function handleTaskDelete(taskId) {
+    try {
+      if (useMockData) {
+        const allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
+        const filteredTasks = allTasks.filter((t) => t.id !== taskId);
+        localStorage.setItem('mockTasks', JSON.stringify(filteredTasks));
+        console.log('✅ Task deleted from mock data:', taskId);
+      } else {
+        // TODO: Call API when backend is ready
+        // await taskService.deleteTask(taskId);
+      }
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      alert('Failed to delete task. Please try again.');
+    }
+  }
+
   async function handleEventResize(eventId, newTimes) {
     try {
       await eventService.updateEvent(eventId, newTimes);
@@ -432,6 +490,10 @@ function Calendar() {
                 setSelectedEvent(null);
                 setShowEventModal(true);
               }}
+              onCreateTask={() => {
+                setSelectedTask(null);
+                setShowTaskModal(true);
+              }}
             />
           </Col>
           <Col lg={9} xs={12} className="calendar-main-column">
@@ -486,6 +548,18 @@ function Calendar() {
         currentDate={currentDate}
         onSave={handleEventSave}
         onDelete={handleEventDelete}
+      />
+
+      <TaskModal
+        show={showTaskModal}
+        onHide={() => {
+          setShowTaskModal(false);
+          setSelectedTask(null);
+        }}
+        task={selectedTask}
+        currentDate={currentDate}
+        onSave={handleTaskSave}
+        onDelete={handleTaskDelete}
       />
     </div>
   );
