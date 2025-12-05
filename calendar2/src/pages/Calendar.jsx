@@ -232,8 +232,14 @@ function Calendar() {
   }
 
   function handleEventClick(event) {
-    setSelectedEvent(event);
-    setShowEventModal(true);
+    // Nếu là task thì mở TaskModal, nếu không thì mở EventModal
+    if (event.type === 'task') {
+      setSelectedTask(event);
+      setShowTaskModal(true);
+    } else {
+      setSelectedEvent(event);
+      setShowEventModal(true);
+    }
   }
 
   function handleDateClick(date) {
@@ -333,15 +339,17 @@ function Calendar() {
   async function handleTaskSave(taskId, taskData) {
     console.log('handleTaskSave called', { taskId, taskData, useMockData });
     try {
-      // Luôn dùng mock data cho bây giờ
-      const allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
-      let updatedTasks;
+      // Lưu task như event để hiển thị trên calendar
+      const allEvents = loadMockEventsFromStorage();
+      let updatedEvents;
       
       if (taskId) {
-        updatedTasks = allTasks.map((t) =>
-          t.id === taskId ? { ...t, ...taskData, updatedAt: new Date().toISOString() } : t
+        // Update existing task
+        updatedEvents = allEvents.map((e) =>
+          e.id === taskId ? { ...e, ...taskData, updatedAt: new Date().toISOString() } : e
         );
       } else {
+        // Create new task
         const newTask = {
           id: `task-${Date.now()}`,
           ...taskData,
@@ -349,11 +357,14 @@ function Calendar() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        updatedTasks = [...allTasks, newTask];
+        updatedEvents = [...allEvents, newTask];
       }
       
-      localStorage.setItem('mockTasks', JSON.stringify(updatedTasks));
-      console.log('✅ Task saved in mock data:', taskId || 'new');
+      saveMockEventsToStorage(updatedEvents);
+      console.log('✅ Task saved as event:', taskId || 'new');
+      
+      // Reload events để hiển thị task mới
+      await loadEvents();
       alert('Đã lưu việc cần làm thành công!');
     } catch (error) {
       console.error('Failed to save task:', error);
@@ -363,18 +374,17 @@ function Calendar() {
 
   async function handleTaskDelete(taskId) {
     try {
-      if (useMockData) {
-        const allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
-        const filteredTasks = allTasks.filter((t) => t.id !== taskId);
-        localStorage.setItem('mockTasks', JSON.stringify(filteredTasks));
-        console.log('✅ Task deleted from mock data:', taskId);
-      } else {
-        // TODO: Call API when backend is ready
-        // await taskService.deleteTask(taskId);
-      }
+      // Xóa task từ events list
+      const allEvents = loadMockEventsFromStorage();
+      const filteredEvents = allEvents.filter((e) => e.id !== taskId);
+      saveMockEventsToStorage(filteredEvents);
+      console.log('✅ Task deleted from events:', taskId);
+      
+      // Reload events
+      await loadEvents();
     } catch (error) {
       console.error('Failed to delete task:', error);
-      alert('Failed to delete task. Please try again.');
+      alert('Có lỗi xảy ra khi xóa việc cần làm. Vui lòng thử lại.');
     }
   }
 

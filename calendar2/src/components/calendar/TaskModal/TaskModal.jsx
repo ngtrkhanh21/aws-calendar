@@ -15,12 +15,13 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
 
   useEffect(() => {
     if (task) {
-      const taskDate = task.date ? dayjs(task.date) : dayjs();
+      // Task có thể có format như event (start/end) hoặc format cũ (date)
+      const taskDate = task.start ? dayjs(task.start) : (task.date ? dayjs(task.date) : dayjs());
       setTitle(task.title || '');
       setDescription(task.description || '');
       setDate(taskDate.format('YYYY-MM-DD'));
       setTime(taskDate.format('HH:mm'));
-      setDeadline(task.deadline || '');
+      setDeadline(task.deadline ? dayjs(task.deadline).format('YYYY-MM-DD') : '');
       setTaskList(task.taskList || 'my-tasks');
       setRepeat(task.repeat || 'none');
     } else {
@@ -49,14 +50,24 @@ function TaskModal({ show, onHide, task, currentDate, onSave, onDelete }) {
       // Đảm bảo date và time hợp lệ
       const selectedDate = date || dayjs().format('YYYY-MM-DD');
       const selectedTime = time || dayjs().format('HH:mm');
-      const taskDate = dayjs(`${selectedDate} ${selectedTime}`).utc().toISOString();
-      const deadlineDate = deadline ? dayjs(deadline).startOf('day').utc().toISOString() : null;
+      
+      // Tạo start và end time giống như events
+      // Nếu có deadline, dùng deadline làm end time, nếu không thì thêm 1 giờ
+      const start = dayjs(`${selectedDate} ${selectedTime}`).utc().toISOString();
+      const end = deadline 
+        ? dayjs(deadline).hour(dayjs(`${selectedDate} ${selectedTime}`).hour()).minute(dayjs(`${selectedDate} ${selectedTime}`).minute()).utc().toISOString()
+        : dayjs(`${selectedDate} ${selectedTime}`).add(1, 'hour').utc().toISOString();
 
+      // Lưu task như event để hiển thị trên calendar
       const taskData = {
         title: title.trim(),
         description: description.trim(),
-        date: taskDate,
-        deadline: deadlineDate,
+        start: start, // Format giống events
+        end: end, // Format giống events
+        allDay: false, // Tasks không phải all-day
+        calendarId: 'cal-1', // Mặc định dùng My Calendar
+        type: 'task', // Đánh dấu đây là task
+        deadline: deadline ? dayjs(deadline).startOf('day').utc().toISOString() : null,
         taskList,
         repeat,
         completed: task?.completed || false,
