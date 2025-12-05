@@ -48,6 +48,10 @@
   color: #1a73e8;
 }
 
+.create-button.dropdown-toggle::after {
+  display: none !important;
+}
+
 .create-dropdown-menu {
   border-radius: 12px;
   padding: 4px 0;
