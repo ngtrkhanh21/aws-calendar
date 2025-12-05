@@ -48,9 +48,6 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
           >
             Việc cần làm
           </Dropdown.Item>
-          <Dropdown.Item disabled>
-            Lên lịch hẹn
-          </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
 

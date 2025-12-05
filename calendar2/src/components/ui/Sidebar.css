@@ -6,16 +6,17 @@
 
 .create-button {
   border-radius: 999px;
-  font-weight: 500;
+  font-weight: 600;
   background-color: #fff;
   border: 1px solid #1a73e8;
-  box-shadow: 0 0 0 1px #e0ecff;
+  box-shadow: 0 1px 2px rgba(26, 115, 232, 0.25);
   color: #1a73e8;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: 4px;
+  padding: 6px 12px;
+  min-height: 36px;
 }
 
 .create-button:hover {
@@ -25,17 +26,17 @@
 }
 
 .create-button-icon {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
 }
 
 .create-button-label {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .create-button-caret {
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 9px;
+  margin-top: 1px;
 }
 
 .create-dropdown-menu {
@@ -43,7 +44,7 @@
   padding: 4px 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid #e0e3e7;
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .create-dropdown-menu .dropdown-item {
