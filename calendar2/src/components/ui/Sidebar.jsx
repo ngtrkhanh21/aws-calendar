@@ -24,7 +24,7 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
   }
 
   const monthDays = getMonthDays(selectedMonth);
-  const weekDays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  const weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
   return (
     <div className="sidebar">
@@ -117,7 +117,7 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
 
       <Card>
         <Card.Body>
-          <h6 className="mb-3">Calendars</h6>
+          <h6 className="mb-3">Lịch</h6>
           {calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work').map((calendar) => (
             <Form.Check
               key={calendar.id}

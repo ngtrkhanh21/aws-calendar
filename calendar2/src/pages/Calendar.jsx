@@ -391,12 +391,12 @@ function Calendar() {
       console.log('✅ Event saved successfully!');
     } catch (error) {
       console.error('❌ Failed to save event:', error);
-      alert('Failed to save event. Please try again.');
+      alert('Không thể lưu sự kiện. Vui lòng thử lại.');
     }
   }
 
   async function handleEventDelete(eventId) {
-    if (!confirm('Are you sure you want to delete this event?')) {
+    if (!confirm('Bạn có chắc chắn muốn xóa sự kiện này?')) {
       return;
     }
 
@@ -414,7 +414,7 @@ function Calendar() {
       setSelectedEvent(null);
     } catch (error) {
       console.error('Failed to delete event:', error);
-      alert('Failed to delete event. Please try again.');
+      alert('Không thể xóa sự kiện. Vui lòng thử lại.');
     }
   }
 
@@ -528,7 +528,7 @@ function Calendar() {
   if (loading) {
     return (
       <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
-        <div>Loading...</div>
+        <div>Đang tải...</div>
       </Container>
     );
   }
@@ -546,19 +546,19 @@ function Calendar() {
                   variant={view === VIEWS.MONTH ? 'primary' : 'outline-primary'}
                   onClick={() => setView(VIEWS.MONTH)}
                 >
-                  Month
+                  Tháng
                 </Button>
                 <Button
                   variant={view === VIEWS.WEEK ? 'primary' : 'outline-primary'}
                   onClick={() => setView(VIEWS.WEEK)}
                 >
-                  Week
+                  Tuần
                 </Button>
                 <Button
                   variant={view === VIEWS.DAY ? 'primary' : 'outline-primary'}
                   onClick={() => setView(VIEWS.DAY)}
                 >
-                  Day
+                  Ngày
                 </Button>
               </ButtonGroup>
 
@@ -567,7 +567,7 @@ function Calendar() {
                   ‹
                 </Button>
                 <Button variant="outline-secondary" onClick={handleToday}>
-                  Today
+                  Hôm nay
                 </Button>
                 <Button variant="outline-secondary" onClick={handleNext}>
                   ›

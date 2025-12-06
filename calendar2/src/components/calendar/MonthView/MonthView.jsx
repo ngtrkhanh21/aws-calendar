@@ -6,7 +6,7 @@ import './MonthView.css';
 
 function MonthView({ currentDate, events, calendars, onEventClick, onDateClick }) {
   const monthDays = useMemo(() => getMonthDays(currentDate), [currentDate]);
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
   function getEventsForDay(day) {
     if (!events) return [];
@@ -62,7 +62,7 @@ function MonthView({ currentDate, events, calendars, onEventClick, onDateClick }
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="more-events">+{dayEvents.length - 3} more</div>
+                  <div className="more-events">+{dayEvents.length - 3} sự kiện khác</div>
                 )}
               </div>
             </div>

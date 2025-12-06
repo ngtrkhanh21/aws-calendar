@@ -58,12 +58,12 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
     const finalCalendarId = calendarId || calendars?.[0]?.id || 'cal-1';
     if (!finalCalendarId) {
       console.error('No calendar available', { calendarId, calendars });
-      alert('Please create a calendar before adding events.');
+      alert('Vui lòng tạo lịch trước khi thêm sự kiện.');
       return;
     }
 
     if (!title || title.trim() === '') {
-      alert('Please enter a title for the event.');
+      alert('Vui lòng nhập tiêu đề cho sự kiện.');
       return;
     }
 
@@ -97,34 +97,34 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
   return (
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>{event ? 'Edit Event' : 'Create Event'}</Modal.Title>
+        <Modal.Title>{event ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện'}</Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Title *</Form.Label>
+            <Form.Label>Tiêu đề *</Form.Label>
             <Form.Control
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="Event title"
+              placeholder="Tiêu đề sự kiện"
             />
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
+            <Form.Label>Mô tả</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Event description"
+              placeholder="Mô tả sự kiện"
             />
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Calendar *</Form.Label>
+            <Form.Label>Lịch *</Form.Label>
             <Form.Select
               value={calendarId}
               onChange={(e) => setCalendarId(e.target.value)}
@@ -141,7 +141,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
           <Form.Group className="mb-3">
             <Form.Check
               type="checkbox"
-              label="All Day"
+              label="Cả ngày"
               checked={allDay}
               onChange={(e) => setAllDay(e.target.checked)}
             />
@@ -150,7 +150,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Start Date *</Form.Label>
+                <Form.Label>Ngày bắt đầu *</Form.Label>
                 <Form.Control
                   type="date"
                   value={startDate}
@@ -162,7 +162,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
             <Col md={6}>
               {!allDay && (
                 <Form.Group className="mb-3">
-                  <Form.Label>Start Time *</Form.Label>
+                  <Form.Label>Giờ bắt đầu *</Form.Label>
                   <Form.Control
                     type="time"
                     value={startTime}
@@ -177,7 +177,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>End Date *</Form.Label>
+                <Form.Label>Ngày kết thúc *</Form.Label>
                 <Form.Control
                   type="date"
                   value={endDate}
@@ -189,7 +189,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
             <Col md={6}>
               {!allDay && (
                 <Form.Group className="mb-3">
-                  <Form.Label>End Time *</Form.Label>
+                  <Form.Label>Giờ kết thúc *</Form.Label>
                   <Form.Control
                     type="time"
                     value={endTime}
@@ -204,14 +204,14 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
         <Modal.Footer>
           {event && (
             <Button variant="danger" onClick={() => onDelete(event.id)}>
-              Delete
+              Xóa
             </Button>
           )}
           <Button variant="secondary" onClick={onHide}>
-            Cancel
+            Hủy
           </Button>
           <Button variant="primary" type="submit">
-            {event ? 'Update' : 'Create'}
+            {event ? 'Cập nhật' : 'Tạo'}
           </Button>
         </Modal.Footer>
       </Form>
