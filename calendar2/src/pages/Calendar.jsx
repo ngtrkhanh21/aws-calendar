@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, ButtonGroup, Navbar, Nav } from 'react-bootstrap';
-import { dayjs } from '../utils/dateUtils.js';
+import { dayjs, formatMonthYearVietnamese, formatShortMonthVietnamese, formatFullDateVietnamese } from '../utils/dateUtils.js';
 import { calendarService } from '../services/calendarService.js';
 import { eventService } from '../services/eventService.js';
 import {
@@ -511,16 +511,16 @@ function Calendar() {
 
   const viewTitle = () => {
     if (view === VIEWS.MONTH) {
-      return currentDate.format('MMMM YYYY');
+      return formatMonthYearVietnamese(currentDate);
     } else if (view === VIEWS.WEEK) {
       const weekStart = dayjs(currentDate).startOf('isoWeek');
       const weekEnd = dayjs(currentDate).endOf('isoWeek');
       if (weekStart.month() === weekEnd.month()) {
-        return `${weekStart.format('MMM D')} - ${weekEnd.format('D, YYYY')}`;
+        return `${formatShortMonthVietnamese(weekStart)} ${weekStart.date()} - ${weekEnd.date()}, ${weekEnd.year()}`;
       }
-      return `${weekStart.format('MMM D')} - ${weekEnd.format('MMM D, YYYY')}`;
+      return `${formatShortMonthVietnamese(weekStart)} ${weekStart.date()} - ${formatShortMonthVietnamese(weekEnd)} ${weekEnd.date()}, ${weekEnd.year()}`;
     } else if (view === VIEWS.DAY) {
-      return currentDate.format('MMMM D, YYYY');
+      return formatFullDateVietnamese(currentDate);
     }
     return '';
   };
@@ -537,7 +537,7 @@ function Calendar() {
     <div className="calendar-page">
       <Navbar bg="light" expand="lg" className="calendar-navbar">
         <Container fluid>
-          <Navbar.Brand>Calendar</Navbar.Brand>
+          <Navbar.Brand>Lịch</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">

@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import classNames from 'classnames';
-import { dayjs, formatTime, isToday, getTimeSlotHeight } from '../../../utils/dateUtils.js';
+import { dayjs, formatTime, isToday, getTimeSlotHeight, formatFullDateVietnamese } from '../../../utils/dateUtils.js';
 import './DayView.css';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -69,7 +69,7 @@ function DayView({ currentDate, events, calendars, onEventClick, onTimeSlotClick
         <Col xs={1} className="time-column"></Col>
         <Col className={classNames('day-header-content', { 'today': isToday(day) })}>
           <div className="day-name">{day.format('dddd')}</div>
-          <div className="day-number">{day.format('MMMM D, YYYY')}</div>
+          <div className="day-number">{formatFullDateVietnamese(day)}</div>
         </Col>
       </Row>
       

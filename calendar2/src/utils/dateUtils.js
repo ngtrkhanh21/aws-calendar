@@ -72,3 +72,38 @@ export function parseISO8601(isoString) {
   return dayjs(isoString);
 }
 
+/**
+ * Format tháng sang tiếng Việt: "tháng 1", "tháng 2", ..., "tháng 12"
+ */
+export function formatMonthVietnamese(date) {
+  const month = dayjs(date).month() + 1; // dayjs month is 0-based
+  return `tháng ${month}`;
+}
+
+/**
+ * Format ngày tháng năm tiếng Việt: "tháng 12, 2025"
+ */
+export function formatMonthYearVietnamese(date) {
+  const month = dayjs(date).month() + 1;
+  const year = dayjs(date).year();
+  return `tháng ${month} ${year}`;
+}
+
+/**
+ * Format ngày tháng năm đầy đủ tiếng Việt: "tháng 12 6, 2025"
+ */
+export function formatFullDateVietnamese(date) {
+  const month = dayjs(date).month() + 1;
+  const day = dayjs(date).date();
+  const year = dayjs(date).year();
+  return `tháng ${month} ${day}, ${year}`;
+}
+
+/**
+ * Format tháng ngắn tiếng Việt: "thg 12"
+ */
+export function formatShortMonthVietnamese(date) {
+  const month = dayjs(date).month() + 1;
+  return `thg ${month}`;
+}
+

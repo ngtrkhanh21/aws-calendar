@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Dropdown } from 'react-bootstrap';
-import { dayjs, getMonthDays, isSameDay, isToday } from '../../utils/dateUtils.js';
+import { dayjs, getMonthDays, isSameDay, isToday, formatMonthYearVietnamese } from '../../utils/dateUtils.js';
 import './Sidebar.css';
 
 function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange, onCreateEvent, onCreateTask }) {
@@ -63,7 +63,7 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
               ‹
             </button>
             <h6 className="mb-0">
-              {selectedMonth.format('MMMM YYYY')}
+              {formatMonthYearVietnamese(selectedMonth)}
             </h6>
             <button
               className="btn btn-sm btn-outline-secondary"

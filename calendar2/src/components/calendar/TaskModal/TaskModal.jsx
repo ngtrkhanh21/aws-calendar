@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
-import { dayjs } from '../../../utils/dateUtils.js';
+import { dayjs, formatFullDateVietnamese } from '../../../utils/dateUtils.js';
 import './TaskModal.css';
 
 function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, onDelete }) {
@@ -93,9 +93,9 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
     }
   }
 
-  const formattedDate = date ? dayjs(date).format('D [thg] M, YYYY') : '';
-  const formattedTime = time ? dayjs(`2000-01-01 ${time}`).format('h:mmA') : '';
-  const formattedDeadline = deadline ? dayjs(deadline).format('D [thg] M, YYYY') : '';
+  const formattedDate = date ? formatFullDateVietnamese(dayjs(date)) : '';
+  const formattedTime = time ? dayjs(`2000-01-01 ${time}`).format('HH:mm') : '';
+  const formattedDeadline = deadline ? formatFullDateVietnamese(dayjs(deadline)) : '';
   const repeatLabel =
     repeat === 'daily'
       ? 'Lặp lại hằng ngày'
