@@ -14,25 +14,25 @@ function Login() {
     }
   }, [navigate]);
 
-  // Hàm đơn giản tạo chuỗi ngẫu nhiên (hoặc dùng thư viện uuid nếu có)
-const generateRandomString = (length) => {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-};
+//   // Hàm đơn giản tạo chuỗi ngẫu nhiên (hoặc dùng thư viện uuid nếu có)
+// const generateRandomString = (length) => {
+//     let result = '';
+//     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     const charactersLength = characters.length;
+//     for (let i = 0; i < length; i++) {
+//         result += characters.charAt(Math.floor(Math.random() * charactersLength));
+//     }
+//     return result;
+// };
   const loginWithGoogle = () => {
     const params = new URLSearchParams({
       client_id: CONFIG.clientId,
-      response_type: 'id_token token',
+      response_type: 'code',
       scope: 'email openid profile',
       redirect_uri: CONFIG.redirectUri,
       identity_provider: 'Google',
-      state: generateRandomString(32), 
-    nonce: generateRandomString(32)
+    //   state: generateRandomString(32), 
+    // nonce: generateRandomString(32)
     });
     
     const loginUrl = `${CONFIG.cognitoDomain}/oauth2/authorize?${params}`;
