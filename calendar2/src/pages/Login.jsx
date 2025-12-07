@@ -13,29 +13,52 @@ function Login() {
       navigate('/calendar');
     }
   }, [navigate]);
+const generateRandomString = (length) => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+};
+const base64UrlEncode = (str) => {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+};
 
-//   // Hàm đơn giản tạo chuỗi ngẫu nhiên (hoặc dùng thư viện uuid nếu có)
-// const generateRandomString = (length) => {
-//     let result = '';
-//     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//     const charactersLength = characters.length;
-//     for (let i = 0; i < length; i++) {
-//         result += characters.charAt(Math.floor(Math.random() * charactersLength));
-//     }
-//     return result;
-// };
-  const loginWithGoogle = () => {
+const sha256 = async (plain) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return window.crypto.subtle.digest('SHA-256', data);
+};
+  const loginWithGoogle = async () => {
+    // 1. Tạo codeVerifier
+    const codeVerifier = generateRandomString(128); 
+    
+    // 2. Hash code (Cần await)
+    // LỖI NẰM Ở ĐÂY, PHẢI THÊM 'await' VÀ HÀM PHẢI LÀ 'async'
+    const hashed = await sha256(codeVerifier); 
+    const codeChallenge = base64UrlEncode(new Uint8Array(hashed));
+    
+    // 3. LƯU code_verifier vào localStorage
+    localStorage.setItem('code_verifier', codeVerifier);
     const params = new URLSearchParams({
       client_id: CONFIG.clientId,
       response_type: 'code',
       scope: 'email openid profile',
       redirect_uri: CONFIG.redirectUri,
       identity_provider: 'Google',
-    //   state: generateRandomString(32), 
-    // nonce: generateRandomString(32)
+    state: generateRandomString(32), 
+        
+        // 3. THÊM tham số PKCE vào URL
+        code_challenge: codeChallenge, 
+        code_challenge_method: 'S256'
     });
     
-    const loginUrl = `${CONFIG.cognitoDomain}/oauth2/authorize?${params}`;
+   const loginUrl = `${CONFIG.cognitoDomain}/oauth2/authorize?${params}`;
     console.log(' Redirecting to Google login:', loginUrl);
     window.location.href = loginUrl;
   };
