@@ -14,6 +14,7 @@ function App() {
         
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/" element={<Navigate to="/calendar" replace />} />
+        <Route path="/" element={<Navigate to="/callback" replace />} />
       </Routes>
     </BrowserRouter>
   );

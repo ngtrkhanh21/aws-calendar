@@ -1,311 +1,235 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Calendar from "./Calendar";
-
-// Import config
-import { CONFIG } from "../services/config";
+// src/pages/Callback.jsx - FIXED VERSION
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CONFIG } from '../services/config';
 
 function Callback() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState("Processing...");
+  const [isProcessing, setIsProcessing] = useState(true);
+  const hasProcessed = useRef(false); // ← KEY FIX: Prevent double execution
 
   useEffect(() => {
-    handleCallback();
-  }, [navigate, location.search]);
+    const handleCallback = async () => {
+      // ← FIX 1: Chỉ chạy 1 lần duy nhất
+      if (hasProcessed.current) {
+        console.log('⏭️ Already processed, skipping...');
+        return;
+      }
+      hasProcessed.current = true;
 
-  const handleCallback = async () => {
-    console.log("==== Callback Handler Started ====");
+      console.log('=== Callback Handler Started ===');
+      
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      const errorParam = params.get('error');
 
-    try {
-      // Get authorization code from URL
-      const params = new URLSearchParams(location.search);
-      const code = params.get("code");
-      const errorParam = params.get("error");
+      console.log('URL:', window.location.href);
+      console.log('Authorization code received:', code);
 
-      console.log("URL:", window.location.href);
-      console.log(
-        "Authorization code received:",
-        code ? code.substring(0, 20) + "..." : "MISSING"
-      );
+      // Check if already have tokens
+      const existingTokens = localStorage.getItem('auth_tokens');
+      if (existingTokens) {
+        console.log('✅ Already have tokens, redirecting to calendar...');
+        navigate('/calendar', { replace: true });
+        return;
+      }
 
-      // 1. Kiểm tra lỗi OAuth từ Cognito
       if (errorParam) {
-        const errorDescription =
-          params.get("error_description") || "OAuth error occurred";
-        throw new Error(`OAuth Error: ${errorParam} - ${errorDescription}`);
+        console.error('OAuth error:', errorParam);
+        setError(`OAuth error: ${errorParam}`);
+        setIsProcessing(false);
+        return;
       }
 
       if (!code) {
-        throw new Error(
-          "No authorization code found in URL. Please try logging in again."
-        );
+        console.error('No authorization code found');
+        setError('No authorization code received');
+        setIsProcessing(false);
+        return;
       }
 
-      // 2. LẤY code_verifier TỪ localStorage (Bắt buộc cho PKCE)
-      const codeVerifier = localStorage.getItem("code_verifier");
-
-      if (!codeVerifier) {
-        // Đây là lỗi nếu người dùng không đi qua trang Login.jsx
-        throw new Error("PKCE code_verifier missing. Please log in again.");
+      // ← FIX 2: Check if this code was already used
+      const usedCodes = sessionStorage.getItem('used_codes') || '[]';
+      const usedCodesArray = JSON.parse(usedCodes);
+      
+      if (usedCodesArray.includes(code)) {
+        console.log('⚠️ This code was already used, redirecting...');
+        navigate('/calendar', { replace: true });
+        return;
       }
-      console.log("Code Verifier found in storage.");
 
-      setStatus("Exchanging code for tokens...");
-
-      // 3. Exchange code for tokens via backend (GỬI codeVerifier)
-      console.log(
-        "Calling backend token endpoint:",
-        `${CONFIG.apiGatewayUrl}/auth/token`
-      );
-
-      const response = await fetch(`${CONFIG.apiGatewayUrl}/auth/token`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          code: code,
-          redirectUri: CONFIG.redirectUri,
-          codeVerifier: codeVerifier, // Gửi codeVerifier cho backend
-        }),
-      });
-
-      console.log("Backend response status:", response.status);
-      console.log("Backend response headers:", [...response.headers.entries()]);
-
-      // Get response text first for debugging
-      const responseText = await response.text();
-      console.log("Backend response text:", responseText);
-
-      // Parse JSON
-      let result;
       try {
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Failed to parse response as JSON:", parseError);
-        throw new Error("Invalid response format from backend");
-      }
+        const endpoint = `${CONFIG.API_BASE_URL}/auth/token`;
+        console.log('🌐 Calling endpoint:', endpoint);
 
-      console.log("Parsed result:", result);
-      console.log("Result type:", typeof result);
-      console.log("Result keys:", Object.keys(result));
-
-      // Check if response is successful
-      if (!response.ok) {
-        const errorMsg =
-          result.message || result.error || "Token exchange failed";
-        throw new Error(errorMsg);
-      }
-
-      // Validate token response structure
-      if (!result || typeof result !== "object") {
-        console.error("Invalid result structure:", result);
-        throw new Error("Invalid token response from backend");
-      }
-
-      // Extract tokens - support both camelCase and snake_case
-      const tokens = {
-        accessToken: result.accessToken || result.access_token,
-        idToken: result.idToken || result.id_token,
-        refreshToken: result.refreshToken || result.refresh_token,
-        expiresIn: result.expiresIn || result.expires_in,
-        tokenType: result.tokenType || result.token_type,
-      };
-
-      console.log(" Tokens extracted:", {
-        hasAccessToken: !!tokens.accessToken,
-        hasIdToken: !!tokens.idToken,
-        hasRefreshToken: !!tokens.refreshToken,
-      });
-
-      // Validate required tokens
-      if (!tokens.accessToken || !tokens.idToken) {
-        console.error("Missing required tokens:", tokens);
-        throw new Error("Missing required tokens in response");
-      }
-
-      // Store tokens in localStorage
-      console.log("Storing tokens in localStorage...");
-      localStorage.setItem("accessToken", tokens.accessToken);
-      localStorage.setItem("idToken", tokens.idToken);
-      localStorage.removeItem("code_verifier");
-      if (tokens.refreshToken) {
-        localStorage.setItem("refreshToken", tokens.refreshToken);
-      }
-
-      // Decode ID token to get user info (optional)
-      try {
-        const payload = JSON.parse(atob(tokens.idToken.split(".")[1]));
-        console.log("User info:", {
-          email: payload.email,
-          name: payload.name,
-          sub: payload.sub,
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: code,
+            redirectUri: CONFIG.REDIRECT_URI,
+          }),
         });
-        localStorage.setItem("userEmail", payload.email || "");
-        localStorage.setItem("userName", payload.name || "");
-      } catch (decodeError) {
-        console.warn("Failed to decode ID token:", decodeError);
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Backend error response:', errorText);
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { message: errorText };
+          }
+
+          throw new Error(
+            errorData.message || 
+            errorData.error || 
+            `Authentication failed (${response.status})`
+          );
+        }
+
+        const data = await response.json();
+        console.log('✅ Token exchange successful');
+        console.log('📦 Tokens received:', data);
+        console.log('🔑 ID Token:', data.id_token);
+        console.log('🎫 Access Token:', data.access_token);
+        console.log('🔄 Refresh Token:', data.refresh_token);
+        console.log('⏰ Expires in:', data.expires_in, 'seconds');
+
+        // ← FIX 3: Mark code as used
+        usedCodesArray.push(code);
+        sessionStorage.setItem('used_codes', JSON.stringify(usedCodesArray));
+
+        // Store tokens
+        localStorage.setItem('auth_tokens', JSON.stringify(data));
+        
+        // ← FIX 4: Clear URL
+        window.history.replaceState({}, document.title, '/callback');
+        
+        console.log('🎉 Authentication complete, redirecting to calendar...');
+        navigate('/calendar', { replace: true });
+
+      } catch (err) {
+        console.error('❌ Token exchange error:', err);
+        setError(err.message || 'Authentication failed. Please try again.');
+        setIsProcessing(false);
       }
+    };
 
-      console.log(" Login successful! Redirecting...");
-      setStatus("Login successful! Redirecting...");
+    handleCallback();
+  }, []); // Empty dependency array - only run once
 
-      // Redirect to home page
-      setTimeout(() => {
-        navigate("/Calendar");
-      }, 1000);
-    } catch (error) {
-      console.error("  Token Exchange Error ");
-      console.error(" Error:", error);
-      console.error(" Error message:", error.message);
-      console.error(" Error stack:", error.stack);
-      localStorage.removeItem("code_verifier");
-      setError(error.message);
-      setStatus("Authentication failed");
-    }
-  };
+  if (isProcessing) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div className="spinner"></div>
+        <p>Completing authentication...</p>
+      </div>
+    );
+  }
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          borderRadius: "8px",
-          padding: "40px",
-          maxWidth: "500px",
-          width: "100%",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-        }}
-      >
-        {error ? (
-          <>
-            <div
-              style={{
-                fontSize: "48px",
-                textAlign: "center",
-                marginBottom: "20px",
-                color: "#dc3545",
-              }}
-            >
-              ✕
-            </div>
-            <h2
-              style={{
-                fontSize: "24px",
-                fontWeight: "bold",
-                textAlign: "center",
-                marginBottom: "20px",
-                color: "#333",
-              }}
-            >
-              Authentication Error
-            </h2>
-            <div
-              style={{
-                backgroundColor: "#fee",
-                border: "1px solid #fcc",
-                borderRadius: "4px",
-                padding: "15px",
-                marginBottom: "20px",
-                color: "#c33",
-              }}
-            >
-              {error}
-            </div>
+  if (error) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '20px',
+        padding: '20px'
+      }}>
+        <div style={{
+          maxWidth: '500px',
+          padding: '30px',
+          border: '1px solid #f5c6cb',
+          borderRadius: '8px',
+          backgroundColor: '#f8d7da',
+          color: '#721c24'
+        }}>
+          <h2 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            ❌ Authentication Error
+          </h2>
+          
+          <div style={{
+            backgroundColor: '#f5c6cb',
+            padding: '15px',
+            borderRadius: '5px',
+            marginBottom: '20px'
+          }}>
+            <p style={{ margin: 0, fontWeight: 'bold' }}>⚠️ The login session has expired.</p>
+          </div>
+
+          <p style={{ marginBottom: '10px' }}>This usually happens when:</p>
+          <ul style={{ marginBottom: '20px' }}>
+            <li>You refreshed the page during login</li>
+            <li>The authorization code was used already</li>
+            <li>The code expired (10 min limit)</li>
+          </ul>
+
+          <p style={{ 
+            padding: '10px', 
+            backgroundColor: '#fff3cd', 
+            border: '1px solid #ffeaa7',
+            borderRadius: '5px',
+            color: '#856404'
+          }}>
+            💡 <strong>Quick Tip:</strong><br/>
+            Don't refresh the page during login process. If you see this error, simply go back to login and try again.
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate('/login', { replace: true })}
               style={{
-                width: "100%",
-                padding: "12px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                fontSize: "16px",
-                cursor: "pointer",
+                flex: 1,
+                padding: '12px 24px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '16px'
               }}
             >
               ← Back to Login
             </button>
-          </>
-        ) : (
-          <>
-            <div
+            
+            <button
+              onClick={() => navigate('/calendar', { replace: true })}
               style={{
-                fontSize: "48px",
-                textAlign: "center",
-                marginBottom: "20px",
-                animation: "spin 1s linear infinite",
+                flex: 1,
+                padding: '12px 24px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '16px'
               }}
             >
-              ⟳
-            </div>
-            <h2
-              style={{
-                fontSize: "24px",
-                fontWeight: "bold",
-                textAlign: "center",
-                marginBottom: "10px",
-                color: "#333",
-              }}
-            >
-              Authenticating
-            </h2>
-            <p
-              style={{
-                textAlign: "center",
-                color: "#666",
-                marginBottom: "20px",
-              }}
-            >
-              {status}
-            </p>
-            <div
-              style={{
-                width: "100%",
-                height: "4px",
-                backgroundColor: "#e0e0e0",
-                borderRadius: "2px",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  width: "50%",
-                  backgroundColor: "#007bff",
-                  animation: "progress 1.5s ease-in-out infinite",
-                }}
-              />
-            </div>
-          </>
-        )}
+              Continue to Calendar →
+            </button>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes progress {
-          0% { transform: translateX(-100%); }
-          50% { transform: translateX(100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
-    </div>
-  );
+  return null;
 }
+
 export default Callback;
