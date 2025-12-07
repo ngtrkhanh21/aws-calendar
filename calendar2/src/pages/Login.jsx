@@ -17,7 +17,7 @@ function Login() {
   const loginWithGoogle = () => {
     const params = new URLSearchParams({
       client_id: CONFIG.clientId,
-      response_type: 'code',
+      response_type: 'id_token',
       scope: 'email openid profile',
       redirect_uri: CONFIG.redirectUri,
       identity_provider: 'Google'
