@@ -43,8 +43,12 @@ function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClic
     return { top, height };
   }
 
-  function getCalendarColor(calendarId) {
-    const calendar = calendars?.find((cal) => cal.id === calendarId);
+  function getCalendarColor(event) {
+    // Nếu là task (việc cần làm), trả về màu cam
+    if (event.type === 'task') {
+      return '#ff9800';
+    }
+    const calendar = calendars?.find((cal) => cal.id === event.calendarId);
     return calendar?.color || '#3788d8';
   }
 
@@ -61,17 +65,17 @@ function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClic
 
   return (
     <div className="week-view">
-      <Row className="week-header">
-        <Col xs={1} className="time-column"></Col>
+      <div className="week-header">
+        <div className="week-header-time-column"></div>
         {weekDays.map((day) => (
-          <Col key={day.format('YYYY-MM-DD')} className="text-center">
+          <div key={day.format('YYYY-MM-DD')} className="week-header-day">
             <div className={classNames('day-header', { 'today': isToday(day) })}>
               <div className="day-name">{day.format('ddd')}</div>
               <div className="day-number">{day.date()}</div>
             </div>
-          </Col>
+          </div>
         ))}
-      </Row>
+      </div>
       <div className="week-body">
         <div className="time-column">
           {HOURS.map((hour) => (
@@ -113,13 +117,16 @@ function WeekView({ currentDate, events, calendars, onEventClick, onTimeSlotClic
                         style={{
                           top: `${top}px`,
                           height: `${height}px`,
-                          backgroundColor: getCalendarColor(event.calendarId),
+                          backgroundColor: getCalendarColor(event),
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
                           onEventClick?.(event);
                         }}
                       >
+                        {event.type === 'task' && (
+                          <div className="task-indicator" style={{ backgroundColor: '#ff9800' }} />
+                        )}
                         <div className="event-title">{event.title}</div>
                         <div className="event-time">
                           {formatTime(event.start)} - {formatTime(event.end)}

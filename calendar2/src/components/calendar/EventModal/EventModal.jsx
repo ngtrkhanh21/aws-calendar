@@ -3,7 +3,7 @@ import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 import { dayjs } from '../../../utils/dateUtils.js';
 import './EventModal.css';
 
-function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDelete }) {
+function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDelete, onSwitchToTask, initialData }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -26,6 +26,21 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
       setEndTime(end.format('HH:mm'));
       setCalendarId(event.calendarId || '');
       setAllDay(event.allDay || false);
+    } else if (initialData) {
+      const selectedDate = initialData.date ? dayjs(initialData.date) : (currentDate ? dayjs(currentDate) : dayjs());
+      const availableCalendars = calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work') || [];
+      const defaultCalendarId = availableCalendars.find(cal => cal.name === 'My Calendar')?.id 
+        || availableCalendars[0]?.id 
+        || 'cal-1';
+
+      setTitle(initialData.title || '');
+      setDescription(initialData.description || '');
+      setStartDate(initialData.date || selectedDate.format('YYYY-MM-DD'));
+      setStartTime(initialData.time || selectedDate.format('HH:mm'));
+      setEndDate(initialData.endDate || selectedDate.format('YYYY-MM-DD'));
+      setEndTime(initialData.endTime || selectedDate.add(1, 'hour').format('HH:mm'));
+      setCalendarId(defaultCalendarId);
+      setAllDay(false);
     } else {
       // Reset for new event - dùng currentDate nếu có, không thì dùng ngày hiện tại
       const selectedDate = currentDate ? dayjs(currentDate) : dayjs();
@@ -46,7 +61,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
       setCalendarId(defaultCalendarId);
       setAllDay(false);
     }
-  }, [event, calendars, currentDate]);
+  }, [event, calendars, currentDate, initialData]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -67,14 +82,15 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
       return;
     }
 
-    // Chuẩn hóa thời gian sang ISO 8601 format (2025-12-12T10:30:00Z)
+    // Chuẩn hóa thời gian sang ISO 8601 format với timezone offset (2025-12-12T10:30:00+07:00)
+    // Giữ nguyên thời gian local để backend nhận đúng giờ người dùng chọn
     const start = allDay
-      ? dayjs(startDate).startOf('day').utc().toISOString()
-      : dayjs(`${startDate} ${startTime}`).utc().toISOString();
+      ? dayjs(startDate).startOf('day').toISOString()
+      : dayjs(`${startDate}T${startTime}`).toISOString();
     
     const end = allDay
-      ? dayjs(endDate).endOf('day').utc().toISOString()
-      : dayjs(`${endDate} ${endTime}`).utc().toISOString();
+      ? dayjs(endDate).endOf('day').toISOString()
+      : dayjs(`${endDate}T${endTime}`).toISOString();
 
     const eventData = {
       title: title.trim(),
@@ -88,7 +104,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
     console.log('Saving event:', eventData);
 
     if (event) {
-      onSave(event.id, eventData);
+      onSave(event.id || event.eventId, eventData);
     } else {
       onSave(null, eventData);
     }
@@ -96,8 +112,70 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
-      <Modal.Header closeButton>
-        <Modal.Title>{event ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện'}</Modal.Title>
+      <Modal.Header closeButton className="position-relative">
+        {!event && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#f1f3f4',
+              borderRadius: '8px',
+              padding: '2px',
+              gap: '0',
+            }}
+          >
+            <button
+              type="button"
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                backgroundColor: '#fff',
+                color: '#000',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'default',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+              }}
+            >
+              Sự kiện
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSwitchToTask?.({
+                  title,
+                  description,
+                  date: startDate,
+                  time: startTime,
+                  endDate,
+                  endTime,
+                });
+              }}
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                backgroundColor: 'transparent',
+                color: '#000',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              Việc cần làm
+            </button>
+          </div>
+        )}
+        <Modal.Title style={{ marginLeft: !event ? '190px' : '0' }}>
+          {event ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện'}
+        </Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
@@ -123,20 +201,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Lịch *</Form.Label>
-            <Form.Select
-              value={calendarId}
-              onChange={(e) => setCalendarId(e.target.value)}
-              required
-            >
-              {calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work').map((cal) => (
-                <option key={cal.id} value={cal.id}>
-                  {cal.name}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+          {/* Ẩn chọn lịch - tự động chọn mặc định */}
 
           <Form.Group className="mb-3">
             <Form.Check

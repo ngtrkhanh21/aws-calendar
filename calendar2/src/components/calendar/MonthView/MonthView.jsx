@@ -17,8 +17,12 @@ function MonthView({ currentDate, events, calendars, onEventClick, onDateClick }
     });
   }
 
-  function getCalendarColor(calendarId) {
-    const calendar = calendars?.find((cal) => cal.id === calendarId);
+  function getCalendarColor(event) {
+    // Nếu là task (việc cần làm), trả về màu cam
+    if (event.type === 'task') {
+      return '#ff9800';
+    }
+    const calendar = calendars?.find((cal) => cal.id === event.calendarId);
     return calendar?.color || '#3788d8';
   }
 
@@ -52,7 +56,7 @@ function MonthView({ currentDate, events, calendars, onEventClick, onDateClick }
                   <div
                     key={event.id}
                     className="event-item"
-                    style={{ borderLeftColor: getCalendarColor(event.calendarId) }}
+                    style={{ borderLeftColor: getCalendarColor(event) }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onEventClick?.(event);

@@ -103,6 +103,15 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
+.task-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 8px 0 0 8px;
+}
+
 .day-event:hover {
   opacity: 0.95;
 }

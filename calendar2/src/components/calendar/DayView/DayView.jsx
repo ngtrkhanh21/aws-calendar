@@ -43,8 +43,12 @@ function DayView({ currentDate, events, calendars, onEventClick, onTimeSlotClick
     return { top, height };
   }
 
-  function getCalendarColor(calendarId) {
-    const calendar = calendars?.find((cal) => cal.id === calendarId);
+  function getCalendarColor(event) {
+    // Nếu là task (việc cần làm), trả về màu cam
+    if (event.type === 'task') {
+      return '#ff9800';
+    }
+    const calendar = calendars?.find((cal) => cal.id === event.calendarId);
     return calendar?.color || '#3788d8';
   }
 
@@ -123,13 +127,16 @@ function DayView({ currentDate, events, calendars, onEventClick, onTimeSlotClick
                   style={{
                     top: `${top}px`,
                     height: `${height}px`,
-                    backgroundColor: getCalendarColor(event.calendarId),
+                    backgroundColor: getCalendarColor(event),
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onEventClick?.(event);
                   }}
                 >
+                  {event.type === 'task' && (
+                    <div className="task-indicator" style={{ backgroundColor: '#ff9800' }} />
+                  )}
                   <div className="event-title">{event.title}</div>
                   <div className="event-time">
                     {formatTime(event.start)} - {formatTime(event.end)}

@@ -3,13 +3,12 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import { dayjs, formatFullDateVietnamese } from '../../../utils/dateUtils.js';
 import './TaskModal.css';
 
-function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, onDelete }) {
+function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, onDelete, onSwitchToEvent, initialData }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [taskList, setTaskList] = useState('my-tasks');
   const [showDeadlinePicker, setShowDeadlinePicker] = useState(false);
   const [repeat, setRepeat] = useState('none'); // none | daily | weekly | custom
   const [repeatDays, setRepeatDays] = useState([]); // array of weekday numbers (0-6)
@@ -23,9 +22,17 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
       setDate(taskDate.format('YYYY-MM-DD'));
       setTime(taskDate.format('HH:mm'));
       setDeadline(task.deadline ? dayjs(task.deadline).format('YYYY-MM-DD') : '');
-      setTaskList(task.taskList || 'my-tasks');
       setRepeat(task.repeat || 'none');
       setRepeatDays(task.repeatDays || []);
+    } else if (initialData) {
+      const selectedDate = initialData.date ? dayjs(initialData.date) : (currentDate ? dayjs(currentDate) : dayjs());
+      setTitle(initialData.title || '');
+      setDescription(initialData.description || '');
+      setDate(initialData.date || selectedDate.format('YYYY-MM-DD'));
+      setTime(initialData.time || selectedDate.format('HH:mm'));
+      setDeadline(initialData.deadline || initialData.endDate || '');
+      setRepeat('none');
+      setRepeatDays([]);
     } else {
       // Reset for new task
       const selectedDate = currentDate ? dayjs(currentDate) : dayjs();
@@ -34,12 +41,11 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
       setDate(selectedDate.format('YYYY-MM-DD'));
       setTime(selectedDate.format('HH:mm'));
       setDeadline('');
-      setTaskList('my-tasks');
       setRepeat('none');
       setRepeatDays([]);
     }
     setShowDeadlinePicker(false);
-  }, [task, currentDate]);
+  }, [task, currentDate, initialData]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -53,13 +59,28 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
       // Đảm bảo date và time hợp lệ
       const selectedDate = date || dayjs().format('YYYY-MM-DD');
       const selectedTime = time || dayjs().format('HH:mm');
-      
-      // Tạo start và end time giống như events
-      // Nếu có deadline, dùng deadline làm end time, nếu không thì thêm 1 giờ
-      const start = dayjs(`${selectedDate} ${selectedTime}`).utc().toISOString();
-      const end = deadline 
-        ? dayjs(deadline).hour(dayjs(`${selectedDate} ${selectedTime}`).hour()).minute(dayjs(`${selectedDate} ${selectedTime}`).minute()).utc().toISOString()
-        : dayjs(`${selectedDate} ${selectedTime}`).add(1, 'hour').utc().toISOString();
+
+      // Parse start time an toàn - giữ nguyên timezone local
+      const startLocal = dayjs(`${selectedDate}T${selectedTime}`);
+      if (!startLocal.isValid()) {
+        alert('Ngày/giờ không hợp lệ');
+        return;
+      }
+      // Gửi với timezone offset để backend nhận đúng giờ người dùng chọn
+      const start = startLocal.toISOString();
+
+      // Parse end time: nếu có deadline -> dùng deadline + giờ start, nếu không -> +1h
+      let end;
+      if (deadline) {
+        const endLocal = dayjs(deadline).hour(startLocal.hour()).minute(startLocal.minute());
+        if (!endLocal.isValid()) {
+          alert('Ngày kết thúc không hợp lệ');
+          return;
+        }
+        end = endLocal.toISOString();
+      } else {
+        end = startLocal.add(1, 'hour').toISOString();
+      }
 
       // Lưu task như event để hiển thị trên calendar
       const taskData = {
@@ -70,8 +91,7 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
         allDay: false, // Tasks không phải all-day
         calendarId: 'cal-1', // Mặc định dùng My Calendar
         type: 'task', // Đánh dấu đây là task
-        deadline: deadline ? dayjs(deadline).startOf('day').utc().toISOString() : null,
-        taskList,
+        deadline: deadline ? dayjs(deadline).startOf('day').toISOString() : null,
         repeat,
         repeatDays,
         completed: task?.completed || false,
@@ -121,10 +141,75 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
     );
   }
 
+  function handleSwitchToEvent() {
+    onSwitchToEvent?.({
+      title,
+      description,
+      date,
+      time,
+      endDate: deadline || date,
+      endTime: time,
+    });
+  }
+
   return (
     <Modal show={show} onHide={onHide} size="lg" centered className="task-modal">
-      <Modal.Header closeButton className="task-modal-header">
-        <div className="w-100">
+      <Modal.Header closeButton className="task-modal-header position-relative">
+        {!task && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#f1f3f4',
+              borderRadius: '8px',
+              padding: '2px',
+              gap: '0',
+              zIndex: 10,
+            }}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSwitchToEvent();
+              }}
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                backgroundColor: 'transparent',
+                color: '#000',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              Sự kiện
+            </button>
+            <button
+              type="button"
+              style={{
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                backgroundColor: '#fff',
+                color: '#000',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'default',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+              }}
+            >
+              Việc cần làm
+            </button>
+          </div>
+        )}
+        <div className="w-100" style={{ marginLeft: !task ? '190px' : '0' }}>
           <Form.Control
             type="text"
             placeholder="Thêm tiêu đề"
@@ -257,23 +342,7 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
             </div>
           </div>
 
-          <div className="task-field">
-            <div className="task-field-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-              </svg>
-            </div>
-            <div className="task-field-content">
-              <Form.Select
-                value={taskList}
-                onChange={(e) => setTaskList(e.target.value)}
-                className="task-list-select"
-              >
-                <option value="my-tasks">Việc cần làm của tôi</option>
-                <option value="work-tasks">Việc cần làm công việc</option>
-              </Form.Select>
-            </div>
-          </div>
+          {/* Đã bỏ phân loại việc làm */}
         </Modal.Body>
 
         <Modal.Footer className="task-modal-footer">

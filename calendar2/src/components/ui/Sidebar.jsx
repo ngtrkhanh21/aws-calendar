@@ -3,7 +3,7 @@ import { Card, Form, Dropdown } from 'react-bootstrap';
 import { dayjs, getMonthDays, isSameDay, isToday, formatMonthYearVietnamese } from '../../utils/dateUtils.js';
 import './Sidebar.css';
 
-function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange, onCreateEvent, onCreateTask }) {
+function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDatePickerChange, onCreateEvent, onCreateTask, showEvents, showTasks, onToggleEvents, onToggleTasks }) {
   const [selectedMonth, setSelectedMonth] = useState(dayjs(currentDate));
 
   // Đồng bộ month/year trên mini calendar với currentDate bên ngoài
@@ -117,26 +117,39 @@ function Sidebar({ currentDate, onDateChange, calendars, onCalendarToggle, onDat
 
       <Card>
         <Card.Body>
-          <h6 className="mb-3">Lịch</h6>
-          {calendars?.filter(cal => cal.name === 'My Calendar' || cal.name === 'Work').map((calendar) => (
-            <Form.Check
-              key={calendar.id}
-              type="checkbox"
-              id={`calendar-${calendar.id}`}
-              label={
-                <span>
-                  <span
-                    className="calendar-color-indicator"
-                    style={{ backgroundColor: calendar.color || '#3788d8' }}
-                  />
-                  {calendar.name}
-                </span>
-              }
-              checked={calendar.visible !== false}
-              onChange={(e) => onCalendarToggle?.(calendar.id, e.target.checked)}
-              className="mb-2"
-            />
-          ))}
+          <h6 className="mb-3">Phân loại</h6>
+          <Form.Check
+            type="checkbox"
+            id="filter-events"
+            label={
+              <span>
+                <span
+                  className="calendar-color-indicator"
+                  style={{ backgroundColor: '#3788d8' }}
+                />
+                Sự kiện
+              </span>
+            }
+            checked={showEvents !== false}
+            onChange={(e) => onToggleEvents?.(e.target.checked)}
+            className="mb-2"
+          />
+          <Form.Check
+            type="checkbox"
+            id="filter-tasks"
+            label={
+              <span>
+                <span
+                  className="calendar-color-indicator"
+                  style={{ backgroundColor: '#ff9800' }}
+                />
+                Việc cần làm
+              </span>
+            }
+            checked={showTasks !== false}
+            onChange={(e) => onToggleTasks?.(e.target.checked)}
+            className="mb-2"
+          />
         </Card.Body>
       </Card>
     </div>

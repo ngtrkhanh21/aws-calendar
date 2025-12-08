@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import Calendar from './pages/Calendar';
 import Callback from './pages/Callback';
 import Login from './pages/Login';  
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Navigate to="/calendar" replace />} />
         <Route path="/" element={<Navigate to="/callback" replace />} />
       </Routes>
+      <ToastContainer position="top-right" autoClose={3000} />
     </BrowserRouter>
   );
 }
