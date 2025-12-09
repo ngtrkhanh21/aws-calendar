@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, ButtonGroup, Navbar, Nav } from 'react-bootstrap';
 import { dayjs, formatMonthYearVietnamese, formatShortMonthVietnamese, formatFullDateVietnamese } from '../utils/dateUtils.js';
 import { toast } from 'react-toastify';
@@ -165,6 +165,8 @@ function Calendar() {
       'weekday': 'WEEKDAY',
       'yearly': 'YEARLY',
     };
+    // --- Thay thế hàm handleLogout cũ bằng hàm này ---
+
     const recurrence = recurrenceMap[frequency.toLowerCase()] || null;
 
     // Ưu tiên endDate từ recurrenceRule, sau đó deadline/end/endTime/start
@@ -669,7 +671,29 @@ function Calendar() {
       toast.error('Thay đổi thời lượng thất bại');
     }
   }
+  // --- Thay thế hàm handleLogout cũ bằng hàm này ---
+function handleLogout() {
+    if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+      
+      localStorage.clear();
+      sessionStorage.clear();
 
+      // 1. Domain (Đã có https://)
+      const COGNITO_DOMAIN = "https://ap-southeast-1tryyhpjm0.auth.ap-southeast-1.amazoncognito.com"; 
+      
+      const CLIENT_ID = "5dct7sk93a0unassp7komfpidq"; 
+
+      // 2. URI: Phải là http (không s) để khớp với AWS Console bạn vừa sửa
+      const LOGOUT_URI = "http://localhost:5173/login"; 
+
+      // 3. Endpoint: /logout đi kèm với tham số logout_uri
+      // (Lưu ý: Mình đã đổi lại thành logout_uri)
+      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(LOGOUT_URI)}`;
+
+      console.log("Logout Link:", logoutUrl); // Bật F12 xem link sinh ra có đúng không
+      window.location.href = logoutUrl;
+    }
+  }
   const visibleCalendars = calendars.filter((cal) => cal.visible !== false);
   const filteredEvents = events.filter((event) => {
     const calendar = calendars.find((cal) => cal.id === event.calendarId);
@@ -749,6 +773,16 @@ function Calendar() {
               </ButtonGroup>
 
               <span className="navbar-text me-3">{viewTitle()}</span>
+            </Nav>
+            <Nav className="ms-auto">
+              <Button 
+                variant="outline-danger" 
+                onClick={handleLogout}
+                className="d-flex align-items-center gap-2"
+              >
+                <i className="bi bi-box-arrow-right"></i> {/* Nếu có dùng bootstrap icons */}
+                Đăng xuất
+              </Button>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -848,4 +882,8 @@ function Calendar() {
 }
 
 export default Calendar;
+
+
+
+
 
