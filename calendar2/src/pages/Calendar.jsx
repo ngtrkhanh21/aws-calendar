@@ -19,6 +19,7 @@ import TaskModal from '../components/calendar/TaskModal/TaskModal';
 import Sidebar from '../components/ui/Sidebar.jsx';
 import './Calendar.css';
 
+
 const VIEWS = {
   MONTH: 'month',
   WEEK: 'week',
@@ -676,7 +677,7 @@ function handleLogout() {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
       localStorage.clear();
       sessionStorage.clear();
-      navigate('/login');
+      window.location.href = '/login';
     }
   }
   const visibleCalendars = calendars.filter((cal) => cal.visible !== false);

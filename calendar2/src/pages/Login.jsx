@@ -3,7 +3,7 @@ import { CONFIG } from '../services/config';
 
 function Login() {
   const handleGoogleLogin = () => {
-    console.log('🔐 Initiating Google login...');
+    console.log('Initiating Google login...');
     console.log('OAuth URL:', CONFIG.OAUTH_URL);
     console.log('Client ID:', CONFIG.COGNITO_CLIENT_ID);
     console.log('Redirect URI:', CONFIG.REDIRECT_URI);
