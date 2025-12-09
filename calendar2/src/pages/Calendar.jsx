@@ -674,24 +674,9 @@ function Calendar() {
   // --- Thay thế hàm handleLogout cũ bằng hàm này ---
 function handleLogout() {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-      
       localStorage.clear();
       sessionStorage.clear();
-
-      // 1. Domain (Đã có https://)
-      const COGNITO_DOMAIN = "https://ap-southeast-1tryyhpjm0.auth.ap-southeast-1.amazoncognito.com"; 
-      
-      const CLIENT_ID = "5dct7sk93a0unassp7komfpidq"; 
-
-      // 2. URI: Phải là http (không s) để khớp với AWS Console bạn vừa sửa
-      const LOGOUT_URI = "http://localhost:5173/login"; 
-
-      // 3. Endpoint: /logout đi kèm với tham số logout_uri
-      // (Lưu ý: Mình đã đổi lại thành logout_uri)
-      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(LOGOUT_URI)}`;
-
-      console.log("Logout Link:", logoutUrl); // Bật F12 xem link sinh ra có đúng không
-      window.location.href = logoutUrl;
+      navigate('/login');
     }
   }
   const visibleCalendars = calendars.filter((cal) => cal.visible !== false);

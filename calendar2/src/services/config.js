@@ -17,10 +17,4 @@ export const CONFIG = {
            `scope=email+openid+profile&` +
            `redirect_uri=${encodeURIComponent(this.REDIRECT_URI)}`;
   },
-  
-  get LOGOUT_URL() {
-    return `https://${this.COGNITO_DOMAIN}/logout?` +
-           `client_id=${this.COGNITO_CLIENT_ID}&` +
-           `logout_uri=${encodeURIComponent(window.location.origin)}`;
-  }
 };
