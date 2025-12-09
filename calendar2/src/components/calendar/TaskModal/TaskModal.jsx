@@ -250,7 +250,7 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
                 onChange={(e) => setTime(e.target.value)}
                 className="task-time-input ms-2"
               />
-              <Form.Select
+              {/* <Form.Select
                 value={repeat}
                 onChange={(e) => setRepeat(e.target.value)}
                 className="task-repeat-select ms-2"
@@ -259,7 +259,7 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
                 <option value="daily">Hằng ngày</option>
                 <option value="weekly">Hằng tuần</option>
                 <option value="custom">Tùy chỉnh ngày</option>
-              </Form.Select>
+              </Form.Select> */}
             </div>
             {(repeat === 'weekly' || repeat === 'custom') && (
               <div className="repeat-days mt-2">
