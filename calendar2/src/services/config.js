@@ -7,7 +7,7 @@ export const CONFIG = {
   COGNITO_DOMAIN: 'ap-southeast-1tryyhpjm0.auth.ap-southeast-1.amazoncognito.com',
   COGNITO_CLIENT_ID: '5dct7sk93a0unassp7komfpidq',
   COGNITO_REGION: 'ap-southeast-1',
-  REDIRECT_URI: 'http://localhost:5173/callback',
+  REDIRECT_URI: 'https://auroratime.click/callback',
   
   // OAuth URLs
   get OAUTH_URL() {
