@@ -203,14 +203,14 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
 
           {/* Ẩn chọn lịch - tự động chọn mặc định */}
 
-          <Form.Group className="mb-3">
+          {/* <Form.Group className="mb-3">
             <Form.Check
               type="checkbox"
               label="Cả ngày"
               checked={allDay}
               onChange={(e) => setAllDay(e.target.checked)}
             />
-          </Form.Group>
+          </Form.Group> */}
 
           <Row>
             <Col md={6}>
