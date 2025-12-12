@@ -12,6 +12,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
   const [endTime, setEndTime] = useState('');
   const [calendarId, setCalendarId] = useState('');
   const [allDay, setAllDay] = useState(false);
+  const [dateError, setDateError] = useState('');
 
   useEffect(() => {
     if (event) {
@@ -63,6 +64,45 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
     }
   }, [event, calendars, currentDate, initialData]);
 
+  // Validate dates real-time
+  useEffect(() => {
+    if (!startDate || !endDate) {
+      setDateError('');
+      return;
+    }
+
+    const startDateOnly = dayjs(startDate).startOf('day');
+    const endDateOnly = dayjs(endDate).startOf('day');
+
+    // Kiểm tra ngày kết thúc trước ngày bắt đầu
+    if (endDateOnly.isBefore(startDateOnly, 'day')) {
+      setDateError('Ngày kết thúc không thể trước ngày bắt đầu');
+      return;
+    }
+
+    // Nếu không phải allDay, kiểm tra thời gian
+    if (!allDay) {
+      const startDateTime = dayjs(`${startDate}T${startTime || '00:00'}`);
+      const endDateTime = dayjs(`${endDate}T${endTime || '00:00'}`);
+
+      // Nếu cùng ngày, giờ kết thúc phải sau hoặc bằng giờ bắt đầu
+      if (endDateOnly.isSame(startDateOnly, 'day')) {
+        if (endDateTime.isBefore(startDateTime, 'minute')) {
+          setDateError('Giờ kết thúc không thể trước giờ bắt đầu trong cùng một ngày');
+          return;
+        }
+      } else {
+        // Khác ngày, chỉ cần kiểm tra endDateTime không trước startDateTime
+        if (endDateTime.isBefore(startDateTime, 'minute')) {
+          setDateError('Thời gian kết thúc không thể trước thời gian bắt đầu');
+          return;
+        }
+      }
+    }
+
+    setDateError('');
+  }, [startDate, startTime, endDate, endTime, allDay]);
+
   function handleSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -82,15 +122,50 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
       return;
     }
 
+    // Validate: Ngày kết thúc không được trước ngày bắt đầu
+    if (dateError) {
+      alert(dateError);
+      return;
+    }
+
+    const startDateOnly = dayjs(startDate).startOf('day');
+    const endDateOnly = dayjs(endDate).startOf('day');
+    
+    const startDateTime = allDay
+      ? dayjs(startDate).startOf('day')
+      : dayjs(`${startDate}T${startTime}`);
+    
+    const endDateTime = allDay
+      ? dayjs(endDate).endOf('day')
+      : dayjs(`${endDate}T${endTime}`);
+
+    // Kiểm tra ngày kết thúc trước ngày bắt đầu
+    if (endDateOnly.isBefore(startDateOnly, 'day')) {
+      alert('Ngày kết thúc không thể trước ngày bắt đầu. Vui lòng chọn lại.');
+      return;
+    }
+
+    // Nếu không phải allDay, kiểm tra thời gian
+    if (!allDay) {
+      // Nếu cùng ngày, giờ kết thúc phải sau hoặc bằng giờ bắt đầu
+      if (endDateOnly.isSame(startDateOnly, 'day')) {
+        if (endDateTime.isBefore(startDateTime, 'minute')) {
+          alert('Giờ kết thúc không thể trước giờ bắt đầu trong cùng một ngày. Vui lòng chọn lại.');
+          return;
+        }
+      } else {
+        // Khác ngày, chỉ cần kiểm tra endDateTime không trước startDateTime
+        if (endDateTime.isBefore(startDateTime, 'minute')) {
+          alert('Thời gian kết thúc không thể trước thời gian bắt đầu. Vui lòng chọn lại.');
+          return;
+        }
+      }
+    }
+
     // Chuẩn hóa thời gian sang ISO 8601 format với timezone offset (2025-12-12T10:30:00+07:00)
     // Giữ nguyên thời gian local để backend nhận đúng giờ người dùng chọn
-    const start = allDay
-      ? dayjs(startDate).startOf('day').toISOString()
-      : dayjs(`${startDate}T${startTime}`).toISOString();
-    
-    const end = allDay
-      ? dayjs(endDate).endOf('day').toISOString()
-      : dayjs(`${endDate}T${endTime}`).toISOString();
+    const start = startDateTime.toISOString();
+    const end = endDateTime.toISOString();
 
     const eventData = {
       title: title.trim(),
@@ -247,8 +322,15 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate}
                   required
+                  isInvalid={!!dateError}
                 />
+                {dateError && (
+                  <Form.Control.Feedback type="invalid">
+                    {dateError}
+                  </Form.Control.Feedback>
+                )}
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -259,8 +341,15 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
+                    min={startDate === endDate ? startTime : undefined}
                     required
+                    isInvalid={!!dateError && (startDate === endDate || dateError.includes('Giờ kết thúc'))}
                   />
+                  {dateError && (startDate === endDate || dateError.includes('Giờ kết thúc')) && (
+                    <Form.Control.Feedback type="invalid">
+                      {dateError}
+                    </Form.Control.Feedback>
+                  )}
                 </Form.Group>
               )}
             </Col>
@@ -275,7 +364,7 @@ function EventModal({ show, onHide, event, calendars, currentDate, onSave, onDel
           <Button variant="secondary" onClick={onHide}>
             Hủy
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" disabled={!!dateError}>
             {event ? 'Cập nhật' : 'Tạo'}
           </Button>
         </Modal.Footer>

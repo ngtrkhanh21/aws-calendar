@@ -12,6 +12,7 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
   const [showDeadlinePicker, setShowDeadlinePicker] = useState(false);
   const [repeat, setRepeat] = useState('none'); // none | daily | weekly | custom
   const [repeatDays, setRepeatDays] = useState([]); // array of weekday numbers (0-6)
+  const [dateError, setDateError] = useState('');
 
   useEffect(() => {
     if (task) {
@@ -45,7 +46,39 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
       setRepeatDays([]);
     }
     setShowDeadlinePicker(false);
+    setDateError('');
   }, [task, currentDate, initialData]);
+
+  // Validate deadline real-time
+  useEffect(() => {
+    if (!deadline || !date) {
+      setDateError('');
+      return;
+    }
+
+    const deadlineDate = dayjs(deadline).startOf('day');
+    const startDateOnly = dayjs(date).startOf('day');
+    
+    // Kiểm tra deadline trước ngày bắt đầu
+    if (deadlineDate.isBefore(startDateOnly, 'day')) {
+      setDateError('Thời hạn không thể trước ngày bắt đầu');
+      return;
+    }
+
+    // Kiểm tra thời gian nếu cùng ngày
+    if (deadlineDate.isSame(startDateOnly, 'day') && time) {
+      const startLocal = dayjs(`${date}T${time}`);
+      const endLocal = dayjs(deadline).hour(startLocal.hour()).minute(startLocal.minute());
+      
+      // Giờ kết thúc phải sau hoặc bằng giờ bắt đầu trong cùng một ngày
+      if (endLocal.isBefore(startLocal, 'minute')) {
+        setDateError('Giờ kết thúc không thể trước giờ bắt đầu trong cùng một ngày');
+        return;
+      }
+    }
+
+    setDateError('');
+  }, [date, time, deadline]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -66,6 +99,33 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
         alert('Ngày/giờ không hợp lệ');
         return;
       }
+
+      // Validate: Deadline không được trước ngày bắt đầu
+      if (dateError) {
+        alert(dateError);
+        return;
+      }
+
+      if (deadline) {
+        const deadlineDate = dayjs(deadline).startOf('day');
+        const startDateOnly = startLocal.startOf('day');
+        
+        // Kiểm tra deadline trước ngày bắt đầu
+        if (deadlineDate.isBefore(startDateOnly, 'day')) {
+          alert('Thời hạn không thể trước ngày bắt đầu. Vui lòng chọn lại.');
+          return;
+        }
+
+        // Nếu cùng ngày, kiểm tra giờ kết thúc phải sau hoặc bằng giờ bắt đầu
+        if (deadlineDate.isSame(startDateOnly, 'day')) {
+          const endLocal = dayjs(deadline).hour(startLocal.hour()).minute(startLocal.minute());
+          if (endLocal.isBefore(startLocal, 'minute')) {
+            alert('Giờ kết thúc không thể trước giờ bắt đầu trong cùng một ngày. Vui lòng chọn lại.');
+            return;
+          }
+        }
+      }
+
       // Gửi với timezone offset để backend nhận đúng giờ người dùng chọn
       const start = startLocal.toISOString();
 
@@ -75,6 +135,11 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
         const endLocal = dayjs(deadline).hour(startLocal.hour()).minute(startLocal.minute());
         if (!endLocal.isValid()) {
           alert('Ngày kết thúc không hợp lệ');
+          return;
+        }
+        // Validate: End time không được trước start time
+        if (endLocal.isBefore(startLocal, 'minute')) {
+          alert('Thời gian kết thúc không thể trước thời gian bắt đầu. Vui lòng chọn lại.');
           return;
         }
         end = endLocal.toISOString();
@@ -317,10 +382,18 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
                     setDeadline(e.target.value);
                     setShowDeadlinePicker(false);
                   }}
+                  min={date}
                   className="task-deadline-input"
+                  isInvalid={!!dateError}
                   autoFocus
                 />
+                {dateError && (
+                  <div className="text-danger small mt-1">{dateError}</div>
+                )}
               </div>
+            )}
+            {dateError && !showDeadlinePicker && (
+              <div className="text-danger small mt-1">{dateError}</div>
             )}
           </div>
 
@@ -382,7 +455,7 @@ function TaskModal({ show, onHide, task, occurrenceStart, currentDate, onSave, o
           <Button variant="secondary" onClick={onHide}>
             Hủy
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" disabled={!!dateError}>
             Lưu
           </Button>
         </Modal.Footer>
